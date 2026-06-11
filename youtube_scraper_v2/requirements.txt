@@ -1,0 +1,8 @@
+google-api-python-client
+youtube-transcript-api
+groq
+pandas
+python-dotenv
+requests
+yt-dlp
+assemblyai
