@@ -300,6 +300,14 @@
     position: relative;
     overflow: hidden;
   }
+  .profile-card-clickable { cursor: pointer; transition: border-color 0.2s, transform 0.15s; }
+  .profile-card-clickable:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .profile-link-hint {
+    font-size: 11px; color: var(--accent);
+    margin-top: 12px; font-weight: 600;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .profile-card-clickable:hover .profile-link-hint { opacity: 1; }
   .profile-card::before {
     content: '';
     position: absolute;
@@ -319,6 +327,13 @@
     font-size: 28px; font-weight: 700;
     background: linear-gradient(135deg, #1a3a7c, #0f2450);
     box-shadow: 0 4px 20px rgba(30,144,255,0.3);
+    overflow: hidden;
+  }
+  .profile-avatar img,
+  .politician-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
   }
 
   .profile-name {
@@ -639,6 +654,14 @@
     font-size: 11px; font-weight: 600; color: var(--text-2);
   }
   .feed-item-time { font-size: 10px; color: var(--text-3); }
+  .feed-channel-sep { color: var(--text-3); }
+  .feed-channel-badge {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    transition: text-decoration 0.15s;
+  }
+  .feed-channel-badge:hover { text-decoration: underline; }
   .feed-item-text { font-size: 13px; color: var(--text-1); line-height: 1.5; margin-bottom: 8px; }
   .feed-item-tags { display: flex; gap: 6px; }
   .feed-tag {
@@ -686,6 +709,103 @@
 
   /* Separator line in header */
   .header-sep { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+
+  /* ── ANALYSIS BAR ────────────────────────────── */
+  .analysis-bar {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    background: var(--bg-1);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .analysis-bar-label {
+    font-size: 13px; color: var(--text-2); font-weight: 600; white-space: nowrap;
+  }
+  .date-picker {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: var(--text-1);
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .date-picker:focus { border-color: var(--accent); }
+  .date-picker::-webkit-calendar-picker-indicator { filter: invert(0.7); cursor: pointer; }
+
+  .analyze-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 22px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+    border: none; border-radius: 8px;
+    color: #fff; font-size: 14px; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+    transition: opacity 0.2s, transform 0.1s;
+    box-shadow: 0 3px 12px rgba(30,144,255,0.3);
+  }
+  .analyze-btn:hover { opacity: 0.85; }
+  .analyze-btn:active { transform: scale(0.97); }
+  .analyze-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  .analysis-status {
+    font-size: 13px; padding: 6px 14px;
+    border-radius: 20px; font-weight: 500;
+    display: none;
+  }
+  .analysis-status.ok {
+    display: inline-block;
+    background: var(--positive-dim);
+    border: 1px solid rgba(0,217,126,0.25);
+    color: var(--positive);
+  }
+  .analysis-status.err {
+    display: inline-block;
+    background: var(--negative-dim);
+    border: 1px solid rgba(255,71,87,0.25);
+    color: var(--negative);
+  }
+
+  /* ── LOADING OVERLAY ─────────────────────────── */
+  .loading-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(7,11,20,0.82);
+    z-index: 999;
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 18px;
+  }
+  .loading-overlay.show { display: flex; }
+  .loading-spinner {
+    width: 44px; height: 44px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-title { font-size: 16px; font-weight: 700; color: var(--text-1); }
+  .loading-sub { font-size: 13px; color: var(--text-3); }
+
+  /* ── FEED ITEM LINK (real data) ──────────────── */
+  .feed-item-link {
+    text-decoration: none; color: inherit; display: block;
+    margin: 4px -18px; padding: 4px 18px;
+    border-radius: 6px; transition: background 0.15s;
+  }
+  .feed-item-link:hover { background: var(--bg-3); }
+  .feed-item-title {
+    font-size: 13px; font-weight: 600;
+    color: var(--text-1); margin-bottom: 4px; line-height: 1.4;
+  }
+  .feed-no-results {
+    padding: 28px 18px; text-align: center;
+    color: var(--text-3); font-size: 13px; line-height: 1.8;
+  }
 </style>
 </head>
 <body>
@@ -772,6 +892,10 @@
           <span>⚡</span>
           <div><div>Nara Lokesh</div><div class="suggestion-item-party">TDP · Minister</div></div>
         </div>
+        <div class="suggestion-item" onclick="selectPolitician(3)">
+          <span>🏛️</span>
+          <div><div>Gottipati Ravi Kumar</div><div class="suggestion-item-party">TDP · MLA Ponnur</div></div>
+        </div>
       </div>
     </div>
 
@@ -786,6 +910,16 @@
     </div>
   </div>
 
+  <!-- ANALYSIS BAR -->
+  <div class="analysis-bar" id="analysisBar">
+    <span class="analysis-bar-label">📅 Select date:</span>
+    <input type="date" id="datePicker" class="date-picker">
+    <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">
+      ⚡ Run Analysis
+    </button>
+    <span class="analysis-status" id="analysisStatus"></span>
+  </div>
+
   <!-- BODY -->
   <div class="body-wrap">
 
@@ -793,7 +927,7 @@
     <div class="sidebar">
 
       <!-- Profile -->
-      <div class="profile-card">
+      <div class="profile-card profile-card-clickable" id="profileCard" onclick="openProfileLink()" title="Open official profile">
         <div class="profile-avatar" id="profileAvatar">CB</div>
         <div class="profile-name" id="profileName">Chandrababu Naidu</div>
         <div class="profile-party" id="profileParty">TDP</div>
@@ -802,6 +936,7 @@
           <div class="profile-meta-tag">🏛 Kuppam</div>
           <div class="profile-meta-tag">📅 Since 1995</div>
         </div>
+        <div class="profile-link-hint">🔗 View official profile</div>
       </div>
 
       <!-- Overall Score Ring -->
@@ -873,34 +1008,9 @@
         </div>
       </div>
 
-      <!-- Politician switcher -->
+      <!-- Politician switcher (populated dynamically from POLITICIANS array) -->
       <div class="sidebar-section-title">◈ Politicians</div>
-      <div class="politician-list">
-        <div class="politician-item active" id="pol0" onclick="selectPolitician(0)">
-          <div class="politician-thumb">CB</div>
-          <div class="politician-info">
-            <div class="politician-info-name">Chandrababu Naidu</div>
-            <div class="politician-info-party">TDP · Chief Minister</div>
-          </div>
-          <div class="politician-score">70%</div>
-        </div>
-        <div class="politician-item" id="pol1" onclick="selectPolitician(1)">
-          <div class="politician-thumb">PK</div>
-          <div class="politician-info">
-            <div class="politician-info-name">Pawan Kalyan</div>
-            <div class="politician-info-party">Jana Sena · Deputy CM</div>
-          </div>
-          <div class="politician-score">79%</div>
-        </div>
-        <div class="politician-item" id="pol2" onclick="selectPolitician(2)">
-          <div class="politician-thumb">NL</div>
-          <div class="politician-info">
-            <div class="politician-info-name">Nara Lokesh</div>
-            <div class="politician-info-party">TDP · IT Minister</div>
-          </div>
-          <div class="politician-score">63%</div>
-        </div>
-      </div>
+      <div class="politician-list" id="politicianList"></div>
 
     </div>
 
@@ -1000,11 +1110,11 @@
           </div>
           <div class="platform-mini-stats">
             <div class="mini-stat">
-              <div class="mini-stat-val">2,136</div>
+              <div class="mini-stat-val" id="ytVideosCount">2,136</div>
               <div class="mini-stat-label">Videos</div>
             </div>
             <div class="mini-stat">
-              <div class="mini-stat-val">28.7K</div>
+              <div class="mini-stat-val" id="ytCommentsCount">28.7K</div>
               <div class="mini-stat-label">Comments</div>
             </div>
           </div>
@@ -1074,6 +1184,14 @@
 
     </div>
   </div>
+
+  <!-- LOADING OVERLAY -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-title">Analyzing data…</div>
+    <div class="loading-sub">Fetching YouTube videos, transcripts, comments &amp; news. This may take up to 60 seconds.</div>
+  </div>
+
 </div>
 
 <script>
@@ -1082,15 +1200,17 @@
 // ════════════════════════════════════════════════
 const POLITICIANS = [
   {
-    name: "Chandrababu Naidu", initials: "CB", party: "TDP",
-    role: "Chief Minister · Andhra Pradesh",
+    name: "Chandrababu Naidu", initials: "CB", photo: "images/CBN.png", party: "TDP",
+    role: "Chief Minister · Andhra Pradesh", shortRole: "Chief Minister",
     meta: ["🏛 Kuppam", "📅 Since 1995"],
+    profileUrl: "PASTE_CBN_PROFILE_URL_HERE",
     pos: 70, neg: 30,
     fb: { pos: 72, neg: 28, posts: "4,820", comments: "41.2K" },
     yt: { pos: 68, neg: 32, posts: "2,136", comments: "28.7K" },
     tw: { pos: 61, neg: 39, posts: "6,340", comments: "19.1K" },
     feed: [
       { platform: "YouTube", icon: "▶", color: "var(--yt)", time: "2m ago",
+        channel: "TV9 Telugu", channelUrl: "PASTE_TV9_CHANNEL_URL_HERE",
         text: "చంద్రబాబు నాయుడు గారి నాయకత్వంలో రైతులకు మంచి రోజులు వచ్చాయి!", tags: ["pos"], tagLabels: ["Positive"] },
       { platform: "Facebook", icon: "f", color: "var(--fb)", time: "8m ago",
         text: "Steel Plant issue — people are questioning the government's stance on Vizag workers.",
@@ -1102,6 +1222,7 @@ const POLITICIANS = [
         text: "బాబు గారు గ్రామాల్లో రోడ్లు వేయిస్తున్నారు. చాలా మంచి పని.",
         tags: ["pos"], tagLabels: ["Positive"] },
       { platform: "YouTube", icon: "▶", color: "var(--yt)", time: "31m ago",
+        channel: "ABN Telugu", channelUrl: "PASTE_ABN_CHANNEL_URL_HERE",
         text: "Opposition criticizes the state budget — many schemes still pending implementation.",
         tags: ["neg"], tagLabels: ["Negative"] },
     ],
@@ -1115,15 +1236,17 @@ const POLITICIANS = [
     ]
   },
   {
-    name: "Pawan Kalyan", initials: "PK", party: "Jana Sena",
-    role: "Deputy Chief Minister · Andhra Pradesh",
+    name: "Pawan Kalyan", initials: "PK", photo: "images/pawan.png", party: "Jana Sena",
+    role: "Deputy Chief Minister · Andhra Pradesh", shortRole: "Deputy CM",
     meta: ["🎬 Actor & Politician", "📅 Since 2014"],
+    profileUrl: "PASTE_PAWAN_PROFILE_URL_HERE",
     pos: 79, neg: 21,
     fb: { pos: 82, neg: 18, posts: "6,100", comments: "78.4K" },
     yt: { pos: 83, neg: 17, posts: "3,420", comments: "56.2K" },
     tw: { pos: 72, neg: 28, posts: "9,800", comments: "34.5K" },
     feed: [
       { platform: "YouTube", icon: "▶", color: "var(--yt)", time: "1m ago",
+        channel: "Sakshi TV", channelUrl: "PASTE_SAKSHI_CHANNEL_URL_HERE",
         text: "పవన్ కళ్యాణ్ గారు నిజమైన సేనాని! విశాఖ కార్మికుల కోసం నిలబడ్డారు.",
         tags: ["pos"], tagLabels: ["Positive"] },
       { platform: "Twitter", icon: "𝕏", color: "var(--tw)", time: "5m ago",
@@ -1136,6 +1259,7 @@ const POLITICIANS = [
         text: "Critics say Pawan's political commitments conflict with his film career priorities.",
         tags: ["neg"], tagLabels: ["Negative"] },
       { platform: "YouTube", icon: "▶", color: "var(--yt)", time: "45m ago",
+        channel: "NTV Telugu", channelUrl: "PASTE_NTV_CHANNEL_URL_HERE",
         text: "సత్యమేవ జయతే — పవన్ కళ్యాణ్ ప్రభుత్వంలో అన్ని వర్గాలకు న్యాయం జరుగుతుంది.",
         tags: ["pos"], tagLabels: ["Positive"] },
     ],
@@ -1149,9 +1273,10 @@ const POLITICIANS = [
     ]
   },
   {
-    name: "Nara Lokesh", initials: "NL", party: "TDP",
-    role: "IT & HRD Minister · Andhra Pradesh",
+    name: "Nara Lokesh", initials: "NL", photo: "images/lokesh.png", party: "TDP",
+    role: "IT & HRD Minister · Andhra Pradesh", shortRole: "IT Minister",
     meta: ["💻 IT Minister", "📅 Since 2019"],
+    profileUrl: "PASTE_LOKESH_PROFILE_URL_HERE",
     pos: 63, neg: 37,
     fb: { pos: 65, neg: 35, posts: "2,240", comments: "18.6K" },
     yt: { pos: 61, neg: 39, posts: "1,180", comments: "14.3K" },
@@ -1164,6 +1289,7 @@ const POLITICIANS = [
         text: "Labour unions fire back at Nara Lokesh over Steel Plant accident statements.",
         tags: ["neg"], tagLabels: ["Negative"] },
       { platform: "YouTube", icon: "▶", color: "var(--yt)", time: "19m ago",
+        channel: "TV9 Telugu", channelUrl: "PASTE_TV9_CHANNEL_URL_HERE",
         text: "లోకేష్ IT పార్కులు నిర్మిస్తున్నారు — ఆంధ్రప్రదేశ్ యువత కి ఉద్యోగాలు వస్తున్నాయి.",
         tags: ["pos"], tagLabels: ["Positive"] },
       { platform: "Twitter", icon: "𝕏", color: "var(--tw)", time: "35m ago",
@@ -1181,10 +1307,85 @@ const POLITICIANS = [
       { word: "Youth programs", count: 390, type: "pos" },
       { word: "Labour unions", count: 310, type: "neg" },
     ]
+  },
+  {
+    name: "Gottipati Ravi Kumar", initials: "GR", photo: "images/gottipati.jpg", party: "TDP",
+    role: "Minister of Energy · Andhra Pradesh", shortRole: "Energy Minister",
+    meta: ["🏛 Addanki Constituency", "⚡ Energy Minister"],
+    profileUrl: "gottipati_profile.html",
+    pos: 66, neg: 34,
+    fb: { pos: 68, neg: 32, posts: "1,420", comments: "9.6K" },
+    yt: { pos: 64, neg: 36, posts: "640", comments: "5.8K" },
+    tw: { pos: 60, neg: 40, posts: "1,980", comments: "4.2K" },
+    feed: [
+      { platform: "YouTube", icon: "▶", color: "var(--yt)", time: "6m ago",
+        channel: "TV9 Telugu", channelUrl: "PASTE_TV9_CHANNEL_URL_HERE",
+        text: "గొట్టిపాటి రవి కుమార్ గారు పొన్నూరు నియోజకవర్గంలో అభివృద్ధి పనులు చేపట్టారు.",
+        tags: ["pos"], tagLabels: ["Positive"] },
+      { platform: "Facebook", icon: "f", color: "var(--fb)", time: "13m ago",
+        text: "Local residents praise the new road works initiated in Ponnur.",
+        tags: ["pos"], tagLabels: ["Positive"] },
+      { platform: "Twitter", icon: "𝕏", color: "var(--tw)", time: "24m ago",
+        text: "Some voters question the pace of promised irrigation projects in the constituency.",
+        tags: ["neg"], tagLabels: ["Negative"] },
+      { platform: "Facebook", icon: "f", color: "var(--fb)", time: "40m ago",
+        text: "రవి కుమార్ గారు రైతుల సమస్యలు పరిష్కరించడంలో చురుగ్గా ఉన్నారు.",
+        tags: ["pos"], tagLabels: ["Positive"] },
+    ],
+    keywords: [
+      { word: "Ponnur Development", count: 410, type: "pos" },
+      { word: "Road Works", count: 320, type: "pos" },
+      { word: "Irrigation Delay", count: 260, type: "neg" },
+      { word: "Farmer Support", count: 290, type: "pos" },
+      { word: "TDP Alliance", count: 230, type: "pos" },
+      { word: "Local Issues", count: 180, type: "neu" },
+    ]
   }
 ];
 
 let currentIndex = 0;
+
+// ════════════════════════════════════════════════
+// SIDEBAR — renders the politician list dynamically from POLITICIANS
+// ════════════════════════════════════════════════
+function renderPoliticianList() {
+  const list = document.getElementById('politicianList');
+  list.innerHTML = POLITICIANS.map((p, i) => `
+    <div class="politician-item${i === currentIndex ? ' active' : ''}" id="pol${i}" onclick="selectPolitician(${i})">
+      <div class="politician-thumb" id="thumb${i}">${p.initials}</div>
+      <div class="politician-info">
+        <div class="politician-info-name">${p.name}</div>
+        <div class="politician-info-party">${p.party} · ${p.shortRole || p.role}</div>
+      </div>
+      <div class="politician-score">${p.pos}%</div>
+    </div>
+  `).join('');
+  POLITICIANS.forEach((p, i) => setAvatar(document.getElementById('thumb' + i), p));
+}
+
+// ════════════════════════════════════════════════
+// PROFILE LINK — opens politician's external profile in new tab
+// ════════════════════════════════════════════════
+function openProfileLink() {
+  const url = POLITICIANS[currentIndex].profileUrl;
+  if (!url || url.startsWith('PASTE_')) return;
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    window.open(url, '_blank', 'noopener');
+  } else {
+    window.location.href = url;
+  }
+}
+
+// ════════════════════════════════════════════════
+// AVATAR — uses photo file if present, falls back to initials
+// ════════════════════════════════════════════════
+function setAvatar(el, p) {
+  if (p.photo) {
+    el.innerHTML = `<img src="${p.photo}" alt="${p.name}" onerror="this.parentElement.innerHTML='${p.initials}'">`;
+  } else {
+    el.textContent = p.initials;
+  }
+}
 
 // ════════════════════════════════════════════════
 // AUTH
@@ -1193,6 +1394,13 @@ function doLogin(e) {
   if (e) e.preventDefault();
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('dashboard').style.display = 'flex';
+
+  // Initialise date picker to today
+  const dp = document.getElementById('datePicker');
+  dp.value = new Date().toISOString().split('T')[0];
+  document.getElementById('analysisBar').style.display = 'flex';
+
+  renderPoliticianList();
   selectPolitician(0);
 }
 
@@ -1209,10 +1417,11 @@ function selectPolitician(idx) {
   const p = POLITICIANS[idx];
 
   // sidebar active state
-  [0,1,2].forEach(i => document.getElementById('pol'+i).classList.toggle('active', i === idx));
+  POLITICIANS.forEach((_, i) => document.getElementById('pol'+i).classList.toggle('active', i === idx));
 
   // profile
-  document.getElementById('profileAvatar').textContent = p.initials;
+  setAvatar(document.getElementById('profileAvatar'), p);
+
   document.getElementById('profileName').textContent   = p.name;
   document.getElementById('profileParty').textContent  = p.party;
   document.getElementById('profileRole').textContent   = p.role;
@@ -1258,6 +1467,7 @@ function selectPolitician(idx) {
       <div class="feed-item-top">
         <div class="feed-item-platform">
           <span style="color:${item.color}">${item.icon}</span> ${item.platform}
+          ${item.channel ? `<span class="feed-channel-sep">·</span><a class="feed-channel-badge" href="${item.channelUrl || '#'}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${item.channel}</a>` : ''}
         </div>
         <div class="feed-item-time">${item.time}</div>
       </div>
@@ -1284,6 +1494,161 @@ function selectPolitician(idx) {
   // search
   document.getElementById('searchInput').value = '';
   hideSuggestions();
+}
+
+// ════════════════════════════════════════════════
+// ANALYSIS — date picker + backend call
+// ════════════════════════════════════════════════
+
+async function runAnalysis() {
+  const date = document.getElementById('datePicker').value;
+  if (!date) { alert('Please select a date first.'); return; }
+
+  const politician = POLITICIANS[currentIndex].name;
+  const btn    = document.getElementById('analyzeBtn');
+  const status = document.getElementById('analysisStatus');
+  const overlay = document.getElementById('loadingOverlay');
+
+  btn.disabled = true;
+  status.className = 'analysis-status';
+  status.textContent = '';
+  overlay.classList.add('show');
+
+  try {
+    const resp = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ politician, date }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error || `Server error ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    const ytCount   = data.youtube.length;
+    const newsCount = data.news.length;
+
+    // Update overall sentiment cards + ring with real data
+    _updateSentiment(data.overall.positive, data.overall.negative);
+
+    // Update YouTube platform card positive/negative
+    const ytAvgPos = ytCount
+      ? Math.round(data.youtube.reduce((s, v) => s + v.sentiment.positive, 0) / ytCount)
+      : POLITICIANS[currentIndex].yt.pos;
+    const ytAvgNeg = 100 - ytAvgPos;
+    document.getElementById('ytBig').textContent    = ytAvgPos + '%';
+    document.getElementById('ytBigNeg').textContent = ytAvgNeg + '%';
+    document.getElementById('ytDualPos').style.width = ytAvgPos + '%';
+    document.getElementById('ytDualNeg').style.width = ytAvgNeg + '%';
+    document.getElementById('ytBar').style.width  = ytAvgPos + '%';
+    document.getElementById('ytPct').textContent  = ytAvgPos + '% / ' + ytAvgNeg + '%';
+
+    // Update total counts on YouTube card
+    const totalComments = data.youtube.reduce((s, v) => s + v.sentiment.total_comments, 0);
+    document.getElementById('ytVideosCount').textContent   = ytCount;
+    document.getElementById('ytCommentsCount').textContent = totalComments.toLocaleString();
+
+    // Render real feed
+    _renderRealFeed(data.youtube, data.news);
+
+    // Status badge
+    status.textContent = `✓ ${ytCount} videos · ${newsCount} articles · ${data.overall.total_analyzed} comments analyzed`;
+    status.className = 'analysis-status ok';
+
+  } catch (err) {
+    status.textContent = '✕ ' + err.message;
+    status.className = 'analysis-status err';
+    console.error('[Analysis]', err);
+  } finally {
+    btn.disabled = false;
+    overlay.classList.remove('show');
+  }
+}
+
+function _updateSentiment(pos, neg) {
+  // Overall cards
+  document.getElementById('mainPos').textContent    = pos + '%';
+  document.getElementById('mainNeg').textContent    = neg + '%';
+  document.getElementById('mainPosBar').style.width = pos + '%';
+  document.getElementById('mainNegBar').style.width = neg + '%';
+  // Sidebar ring
+  const circumference = 2 * Math.PI * 38;
+  document.getElementById('ringPos').style.strokeDashoffset = circumference * (1 - pos / 100);
+  document.getElementById('ringPct').textContent = pos + '%';
+  // Sidebar bar for YT
+  document.getElementById('ytBar').style.width = pos + '%';
+}
+
+function _sentimentClass(pos, neg) {
+  if (pos >= 55) return 'pos';
+  if (neg >= 55) return 'neg';
+  return 'neu';
+}
+function _sentimentLabel(cls) {
+  return cls === 'pos' ? 'Positive' : cls === 'neg' ? 'Negative' : 'Neutral';
+}
+function _cap(s) { return s ? s[0].toUpperCase() + s.slice(1) : ''; }
+
+function _renderRealFeed(ytVideos, newsArticles) {
+  const feed = document.getElementById('feedBody');
+
+  const ytItems = ytVideos.slice(0, 5).map(v => {
+    const cls = _sentimentClass(v.sentiment.positive, v.sentiment.negative);
+    return `
+      <div class="feed-item">
+        <div class="feed-item-top">
+          <div class="feed-item-platform">
+            <span style="color:var(--yt)">▶</span> YouTube
+            <span class="feed-channel-sep">·</span>
+            <a class="feed-channel-badge" href="${v.channel_url}" target="_blank" rel="noopener"
+               onclick="event.stopPropagation()">${v.channel}</a>
+          </div>
+          <div class="feed-item-time">${v.publish_date}</div>
+        </div>
+        <a class="feed-item-link" href="${v.url}" target="_blank" rel="noopener">
+          <div class="feed-item-title">${v.title}</div>
+          <div class="feed-item-text">${v.transcript_summary || 'No transcript available for this video.'}</div>
+        </a>
+        <div class="feed-item-tags">
+          <span class="feed-tag ${cls}">${_sentimentLabel(cls)}</span>
+          <span class="feed-tag neu">${v.sentiment.total_comments} comments</span>
+        </div>
+      </div>`;
+  });
+
+  const newsItems = newsArticles.slice(0, 4).map(n => {
+    const cls = n.sentiment === 'positive' ? 'pos' : n.sentiment === 'negative' ? 'neg' : 'neu';
+    return `
+      <div class="feed-item">
+        <div class="feed-item-top">
+          <div class="feed-item-platform">
+            <span style="color:var(--text-2)">📰</span> News
+            <span class="feed-channel-sep">·</span>
+            <span class="feed-channel-badge">${n.source}</span>
+          </div>
+          <div class="feed-item-time">${n.published_date}</div>
+        </div>
+        <a class="feed-item-link" href="${n.url}" target="_blank" rel="noopener">
+          <div class="feed-item-title">${n.title}</div>
+          <div class="feed-item-text">${n.summary || ''}</div>
+        </a>
+        <div class="feed-item-tags">
+          <span class="feed-tag ${cls}">${_sentimentLabel(cls)}</span>
+        </div>
+      </div>`;
+  });
+
+  const allItems = [...ytItems, ...newsItems];
+  if (!allItems.length) {
+    feed.innerHTML = `<div class="feed-no-results">
+      No results found for this date.<br>
+      Try a different date or a different politician.
+    </div>`;
+    return;
+  }
+  feed.innerHTML = allItems.join('');
 }
 
 // ════════════════════════════════════════════════

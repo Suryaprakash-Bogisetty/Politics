@@ -1,0 +1,8 @@
+feedparser
+requests
+googlenewsdecoder
+trafilatura
+groq
+pandas
+python-dotenv
+python-dateutil

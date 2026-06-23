@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>గొట్టిపాటి రవి కుమార్ — AP Pulse</title>
+<style>
+  :root {
+    --bg-0:#070b14; --bg-1:#0d1424; --bg-2:#111d30; --bg-3:#172540;
+    --bg-card:#1a2a42; --border:#1e3050; --border-bright:#2a4070;
+    --accent:#1e90ff; --accent-glow:rgba(30,144,255,0.15); --accent-dim:#1260b0;
+    --positive:#00d97e; --positive-dim:rgba(0,217,126,0.12);
+    --negative:#ff4757; --negative-dim:rgba(255,71,87,0.12);
+    --neutral:#f4a829; --neutral-dim:rgba(244,168,41,0.12);
+    --text-1:#e8f0fe; --text-2:#8da4c8; --text-3:#4d6490;
+    --fb:#1877f2; --yt:#ff0000; --tw:#1da1f2;
+    --shadow:0 4px 24px rgba(0,0,0,0.5);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-0);color:var(--text-1);min-height:100vh;}
+  ::-webkit-scrollbar{width:6px;} ::-webkit-scrollbar-track{background:var(--bg-1);} ::-webkit-scrollbar-thumb{background:var(--border-bright);border-radius:3px;}
+
+  /* HEADER */
+  .header{height:62px;background:var(--bg-1);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;position:sticky;top:0;z-index:100;}
+  .header-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
+  .header-brand-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),#0060c0);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .header-brand-name{font-size:16px;font-weight:700;} .header-brand-name span{color:var(--accent);}
+  .header-sep{width:1px;height:28px;background:var(--border);}
+  .back-btn{display:flex;align-items:center;gap:8px;background:var(--bg-3);border:1px solid var(--border);color:var(--text-2);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s;}
+  .back-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .header-badge{background:rgba(30,144,255,0.1);border:1px solid rgba(30,144,255,0.3);color:var(--accent);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;margin-left:auto;}
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,#060d1c 0%,#091528 50%,#060f1e 100%);border-bottom:1px solid var(--border);padding:48px 40px 0;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;top:-80px;left:-80px;width:480px;height:480px;background:radial-gradient(circle,rgba(30,144,255,0.08) 0%,transparent 70%);pointer-events:none;}
+  .hero::after{content:'';position:absolute;bottom:0;right:60px;width:260px;height:260px;background:radial-gradient(circle,rgba(0,217,126,0.05) 0%,transparent 70%);pointer-events:none;}
+  .hero-inner{max-width:1100px;margin:0 auto;display:flex;gap:36px;align-items:flex-end;position:relative;z-index:1;}
+  .hero-photo{width:130px;height:130px;border-radius:50%;border:4px solid var(--accent);box-shadow:0 0 40px rgba(30,144,255,0.35);overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#1a3a7c,#0f2450);display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:700;}
+  .hero-photo img{width:100%;height:100%;object-fit:cover;}
+  .hero-info{flex:1;padding-bottom:32px;}
+  .hero-party-badge{display:inline-block;background:var(--accent-glow);border:1px solid rgba(30,144,255,0.35);color:var(--accent);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:10px;letter-spacing:.5px;}
+  .hero-name{font-size:34px;font-weight:800;margin-bottom:4px;line-height:1.1;}
+  .hero-name-en{font-size:15px;color:var(--text-3);margin-bottom:8px;font-weight:500;}
+  .hero-role{font-size:15px;color:var(--text-2);margin-bottom:16px;}
+  .hero-tags{display:flex;gap:10px;flex-wrap:wrap;}
+  .hero-tag{display:flex;align-items:center;gap:6px;background:var(--bg-3);border:1px solid var(--border);font-size:12px;color:var(--text-2);padding:6px 12px;border-radius:8px;}
+  .hero-scores{display:flex;gap:28px;padding-bottom:36px;flex-shrink:0;}
+  .hero-score-item{text-align:center;}
+  .hero-score-val{font-size:30px;font-weight:800;}
+  .hero-score-val.pos{color:var(--positive);} .hero-score-val.neg{color:var(--negative);} .hero-score-val.neu{color:var(--accent);}
+  .hero-score-label{font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.8px;margin-top:3px;}
+
+  /* TABS */
+  .tab-nav{max-width:1100px;margin:0 auto;display:flex;position:relative;z-index:1;}
+  .tab-btn{padding:14px 22px;font-size:13px;font-weight:600;color:var(--text-3);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .tab-btn:hover:not(.active){color:var(--text-2);}
+
+  /* CONTENT */
+  .content{max-width:1100px;margin:0 auto;padding:28px 40px;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* SECTION TITLE */
+  .section-title{font-size:14px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .section-title::before{content:'';display:inline-block;width:3px;height:16px;background:var(--accent);border-radius:2px;}
+
+  /* OVERVIEW STATS */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+  .stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;transition:border-color .2s;}
+  .stat-card:hover{border-color:var(--border-bright);}
+  .stat-card.pos{border-left:3px solid var(--positive);} .stat-card.neg{border-left:3px solid var(--negative);} .stat-card.neu{border-left:3px solid var(--accent);}
+  .stat-icon{font-size:22px;margin-bottom:8px;}
+  .stat-label{font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px;}
+  .stat-val{font-size:30px;font-weight:800;line-height:1;}
+  .stat-card.pos .stat-val{color:var(--positive);} .stat-card.neg .stat-val{color:var(--negative);} .stat-card.neu .stat-val{color:var(--accent);}
+  .stat-sub{font-size:11px;color:var(--text-3);margin-top:5px;}
+
+  /* ACHIEVEMENTS */
+  .achievements-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}
+  .achievement-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;gap:14px;align-items:flex-start;transition:border-color .2s;}
+  .achievement-card:hover{border-color:var(--border-bright);}
+  .achievement-icon{font-size:26px;flex-shrink:0;margin-top:2px;}
+  .achievement-title{font-size:13px;font-weight:700;margin-bottom:4px;}
+  .achievement-desc{font-size:12px;color:var(--text-2);line-height:1.6;}
+  .achievement-tag{display:inline-block;background:var(--positive-dim);border:1px solid rgba(0,217,126,0.2);color:var(--positive);font-size:10px;font-weight:600;padding:2px 8px;border-radius:12px;margin-top:6px;}
+
+  /* KEYWORDS */
+  .keywords-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:24px;}
+  .keyword-item{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .keyword-item:last-child{margin-bottom:0;}
+  .keyword-rank{font-size:11px;color:var(--text-3);width:18px;text-align:right;}
+  .keyword-word{font-size:13px;font-weight:600;flex:1;}
+  .keyword-bar-wrap{width:100px;height:5px;background:var(--bg-3);border-radius:3px;}
+  .keyword-bar{height:100%;border-radius:3px;}
+  .keyword-bar.pos{background:var(--positive);} .keyword-bar.neg{background:var(--negative);} .keyword-bar.neu{background:var(--neutral);}
+  .keyword-count{font-size:11px;color:var(--text-3);width:36px;text-align:right;}
+
+  /* YOUTUBE TAB */
+  .yt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+  .yt-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all .2s;text-decoration:none;color:inherit;display:block;}
+  .yt-card:hover{border-color:rgba(255,0,0,0.4);transform:translateY(-2px);box-shadow:var(--shadow);}
+  .yt-thumb{position:relative;background:#0a1020;aspect-ratio:16/9;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+  .yt-thumb-placeholder{font-size:40px;opacity:.25;}
+  .yt-play-btn{position:absolute;width:52px;height:52px;background:rgba(255,0,0,0.85);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .2s;}
+  .yt-card:hover .yt-play-btn{transform:scale(1.1);}
+  .yt-channel-bar{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.7));padding:8px 12px;display:flex;justify-content:space-between;align-items:flex-end;}
+  .yt-channel-name{font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;gap:5px;}
+  .yt-channel-dot{width:6px;height:6px;border-radius:50%;background:var(--yt);}
+  .yt-date{font-size:10px;color:rgba(255,255,255,0.6);}
+  .yt-body{padding:14px 16px;}
+  .yt-title{font-size:13px;font-weight:700;margin-bottom:8px;line-height:1.4;}
+  .yt-summary{font-size:12px;color:var(--text-2);line-height:1.65;}
+  .yt-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+  .yt-watch{font-size:11px;color:var(--yt);font-weight:600;}
+  .yt-tag{font-size:10px;padding:2px 8px;border-radius:12px;font-weight:600;}
+  .yt-tag.pos{background:var(--positive-dim);color:var(--positive);}
+  .yt-tag.neg{background:var(--negative-dim);color:var(--negative);}
+  .yt-tag.neu{background:var(--neutral-dim);color:var(--neutral);}
+
+  /* NEWS CHANNELS TAB */
+  .news-filter{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+  .news-filter-btn{background:var(--bg-3);border:1px solid var(--border);color:var(--text-2);padding:6px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;}
+  .news-filter-btn.active{background:var(--accent-glow);border-color:rgba(30,144,255,0.4);color:var(--accent);}
+  .news-list{display:flex;flex-direction:column;gap:12px;}
+  .news-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;transition:all .2s;display:none;}
+  .news-card.show{display:block;}
+  .news-card:hover{border-color:var(--border-bright);}
+  .news-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+  .news-source{display:flex;align-items:center;gap:8px;}
+  .news-source-dot{width:8px;height:8px;border-radius:50%;}
+  .news-source-name{font-size:12px;font-weight:700;}
+  .news-date{font-size:11px;color:var(--text-3);}
+  .news-title{font-size:14px;font-weight:700;margin-bottom:6px;line-height:1.4;}
+  .news-summary{font-size:13px;color:var(--text-2);line-height:1.65;}
+  .news-tag{display:inline-block;margin-top:8px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:12px;}
+  .news-tag.pos{background:var(--positive-dim);color:var(--positive);}
+  .news-tag.neg{background:var(--negative-dim);color:var(--negative);}
+  .news-tag.neu{background:var(--neutral-dim);color:var(--neutral);}
+
+  /* BIO TAB */
+  .bio-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:24px;}
+  .bio-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;}
+  .bio-card h3{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--text-1);}
+  .bio-card p{font-size:13px;color:var(--text-2);line-height:1.8;margin-bottom:12px;}
+  .bio-detail-item{padding:11px 0;border-bottom:1px solid var(--border);}
+  .bio-detail-item:last-child{border-bottom:none;}
+  .bio-detail-label{font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:3px;}
+  .bio-detail-val{font-size:13px;font-weight:600;}
+  .timeline-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:14px;}
+  .timeline-item{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border);}
+  .timeline-item:last-child{border-bottom:none;}
+  .timeline-year{font-size:13px;font-weight:800;color:var(--accent);width:40px;flex-shrink:0;}
+  .timeline-desc{font-size:12px;color:var(--text-2);line-height:1.6;}
+  .timeline-party{font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;display:inline-block;margin-top:3px;}
+  .party-tdp{background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.2);}
+  .party-ysrcp{background:rgba(0,180,0,0.1);color:#00c800;border:1px solid rgba(0,180,0,0.2);}
+  .party-inc{background:rgba(30,144,255,0.1);color:var(--accent);border:1px solid rgba(30,144,255,0.2);}
+
+  /* BADGE LIVE */
+  .badge-live{background:var(--negative-dim);border:1px solid rgba(255,71,87,0.3);color:var(--negative);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:5px;}
+  .badge-live::before{content:'';width:6px;height:6px;background:var(--negative);border-radius:50%;animation:blink 1.2s infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <a class="header-brand" href="index.html">
+    <div class="header-brand-icon">📡</div>
+    <div class="header-brand-name">AP <span>Pulse</span></div>
+  </a>
+  <div class="header-sep"></div>
+  <a class="back-btn" href="javascript:history.back()">← Dashboard కి వెళ్ళు</a>
+  <div class="header-badge">⚡ Energy Minister · TDP</div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+
+    <div class="hero-photo">
+      <img src="images/gottipati.jpg" alt="Gottipati Ravi Kumar"
+           onerror="this.parentElement.innerHTML='GR'">
+    </div>
+
+    <div class="hero-info">
+      <div class="hero-party-badge">TDP · NDA Alliance</div>
+      <div class="hero-name">గొట్టిపాటి రవి కుమార్</div>
+      <div class="hero-name-en">Gottipati Ravi Kumar · "బుజ్జి"</div>
+      <div class="hero-role">⚡ విద్యుత్ మంత్రి · ఆంధ్రప్రదేశ్ ప్రభుత్వం &nbsp;|&nbsp; MLA · అద్దంకి నియోజకవర్గం</div>
+      <div class="hero-tags">
+        <div class="hero-tag">🏛 అద్దంకి, ప్రకాశం జిల్లా</div>
+        <div class="hero-tag">⚡ శక్తి మంత్రిత్వ శాఖ</div>
+        <div class="hero-tag">☀️ Renewable Energy</div>
+        <div class="hero-tag">🌾 రైతు పక్షపాతి</div>
+        <div class="hero-tag">📅 5 సార్లు ఎన్నికైన నేత</div>
+      </div>
+    </div>
+
+    <div class="hero-scores">
+      <div class="hero-score-item">
+        <div class="hero-score-val pos">66%</div>
+        <div class="hero-score-label">Positive</div>
+      </div>
+      <div class="hero-score-item">
+        <div class="hero-score-val neg">34%</div>
+        <div class="hero-score-label">Negative</div>
+      </div>
+      <div class="hero-score-item">
+        <div class="hero-score-val neu">6.1K</div>
+        <div class="hero-score-label">Mentions</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">📊 Overview</button>
+    <button class="tab-btn" onclick="switchTab('youtube',this)">▶ YouTube Videos</button>
+    <button class="tab-btn" onclick="switchTab('news',this)">📰 News Channels</button>
+    <button class="tab-btn" onclick="switchTab('bio',this)">👤 Biography</button>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- ══ OVERVIEW TAB ══ -->
+  <div class="tab-panel active" id="tab-overview">
+
+    <div class="stats-row">
+      <div class="stat-card pos">
+        <div class="stat-icon">✅</div>
+        <div class="stat-label">Overall Positive</div>
+        <div class="stat-val">66%</div>
+        <div class="stat-sub">4,040 positive mentions</div>
+      </div>
+      <div class="stat-card neg">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-label">Overall Negative</div>
+        <div class="stat-val">34%</div>
+        <div class="stat-sub">2,080 negative mentions</div>
+      </div>
+      <div class="stat-card neu">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-label">కనెక్షన్లు ఇచ్చాం</div>
+        <div class="stat-val">22.3L</div>
+        <div class="stat-sub">ఉచిత వ్యవసాయ విద్యుత్</div>
+      </div>
+      <div class="stat-card neu">
+        <div class="stat-icon">💰</div>
+        <div class="stat-label">ప్రభుత్వ వ్యయం</div>
+        <div class="stat-val">₹839Cr</div>
+        <div class="stat-sub">FY 2025-26 రైతులకు</div>
+      </div>
+    </div>
+
+    <div class="section-title">🏆 Key Achievements (2024–2026)</div>
+    <div class="achievements-grid">
+      <div class="achievement-card">
+        <div class="achievement-icon">☀️</div>
+        <div>
+          <div class="achievement-title">Renewable Energy Hub</div>
+          <div class="achievement-desc">ఆంధ్రప్రదేశ్‌ను దేశంలో Energy Storage Capital గా తీర్చిదిద్దే లక్ష్యంతో Solar & Wind Power విస్తరణ. 2028–30 నాటికి 4,000 MW ఫీడర్-లెవల్ సోలార్ టార్గెట్.</div>
+          <span class="achievement-tag">Solar &amp; Wind Focus</span>
+        </div>
+      </div>
+      <div class="achievement-card">
+        <div class="achievement-icon">🌾</div>
+        <div>
+          <div class="achievement-title">రైతులకు ఉచిత విద్యుత్</div>
+          <div class="achievement-desc">22,30,703 ఉచిత వ్యవసాయ కనెక్షన్లు అందించాం. 18.15 లక్షల మంది రైతులకు రోజుకు 9 గంటలు ఉచిత విద్యుత్. ₹839.44 కోట్లు ఖర్చు చేశాం.</div>
+          <span class="achievement-tag">రైతు సంక్షేమం</span>
+        </div>
+      </div>
+      <div class="achievement-card">
+        <div class="achievement-icon">📉</div>
+        <div>
+          <div class="achievement-title">Tariff Reduction</div>
+          <div class="achievement-desc">True-Down mechanism ద్వారా 13 paise/unit తగ్గింపు అమలు. ₹4,900 కోట్ల True-Up charges ని ప్రజలపై వేయకుండా ప్రభుత్వమే భరించింది. ₹1.19/unit మరింత తగ్గింపు లక్ష్యం.</div>
+          <span class="achievement-tag">Tariff Down ↓</span>
+        </div>
+      </div>
+      <div class="achievement-card">
+        <div class="achievement-icon">🔌</div>
+        <div>
+          <div class="achievement-title">Infrastructure Boost</div>
+          <div class="achievement-desc">18 నెలల్లో 75,000 కొత్త వ్యవసాయ కనెక్షన్లు. 200 నూతన సబ్‌స్టేషన్లు నిర్మాణంలో. PM-KUSUM scheme కింద 4.5 లక్షల మంది రైతులకు solar benefits.</div>
+          <span class="achievement-tag">Infrastructure</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">🔑 Top Keywords</div>
+    <div class="keywords-card" id="keywordContainer"></div>
+
+  </div>
+
+  <!-- ══ YOUTUBE TAB ══ -->
+  <div class="tab-panel" id="tab-youtube">
+    <div class="section-title" style="margin-bottom:20px;">▶ YouTube Coverage — Real Videos</div>
+    <div class="yt-grid" id="ytGrid"></div>
+  </div>
+
+  <!-- ══ NEWS CHANNELS TAB ══ -->
+  <div class="tab-panel" id="tab-news">
+    <div class="section-title" style="margin-bottom:12px;">📰 Telugu News Channel Coverage</div>
+    <div class="news-filter">
+      <button class="news-filter-btn active" onclick="filterNews('all',this)">All Channels</button>
+      <button class="news-filter-btn" onclick="filterNews('tv9',this)">TV9 Telugu</button>
+      <button class="news-filter-btn" onclick="filterNews('tv5',this)">TV5 News</button>
+      <button class="news-filter-btn" onclick="filterNews('ntv',this)">NTV Telugu</button>
+      <button class="news-filter-btn" onclick="filterNews('sakshi',this)">Sakshi TV</button>
+      <button class="news-filter-btn" onclick="filterNews('other',this)">Other</button>
+    </div>
+    <div class="news-list" id="newsList"></div>
+  </div>
+
+  <!-- ══ BIO TAB ══ -->
+  <div class="tab-panel" id="tab-bio">
+    <div class="bio-grid">
+
+      <div>
+        <div class="bio-card">
+          <h3>గొట్టిపాటి రవి కుమార్ గురించి</h3>
+          <p>
+            గొట్టిపాటి రవి కుమార్ — ఆప్యాయంగా అందరూ "బుజ్జి" అని పిలుచుకునే నేత — ఆంధ్రప్రదేశ్ విద్యుత్ మంత్రిగా సేవలందిస్తున్నారు. నాలుగోసారి ముఖ్యమంత్రి అయిన శ్రీ N. చంద్రబాబు నాయుడు మంత్రివర్గంలో జూన్ 12, 2024 నుండి పదవి నిర్వహిస్తున్నారు.
+          </p>
+          <p>
+            ప్రకాశం జిల్లా అద్దంకి నియోజకవర్గం నుండి వరుసగా 5 సార్లు ఎన్నికైన అనుభవజ్ఞుడైన నేత. రైతుల సంక్షేమం, విద్యుత్ సంస్కరణలు, పునరుత్పాదక శక్తి రంగంలో AP ని దేశంలో నంబర్ 1 గా నిలిపే దిశగా కృషి చేస్తున్నారు.
+          </p>
+          <p>
+            పూర్వ YSRCP ప్రభుత్వంలో ఒక్క కొత్త విద్యుత్ ప్రాజెక్ట్ కూడా రాకపోవడంతో రాష్ట్రానికి ₹30,000 కోట్ల నష్టం జరిగిందని, TDP ప్రభుత్వం అధికారంలోకి వచ్చిన నాటి నుండి విద్యుత్ చార్జీలు ఒక్కసారి కూడా పెంచలేదని గర్వంగా చెప్తారు.
+          </p>
+        </div>
+        <div class="timeline-card">
+          <h3 style="font-size:13px;font-weight:700;margin-bottom:12px;">🗓 రాజకీయ ప్రస్థానం</h3>
+          <div class="timeline-item">
+            <div class="timeline-year">2004</div>
+            <div><div class="timeline-desc">మరతూరు నియోజకవర్గం నుండి తొలిసారి MLA గా గెలిచారు.</div><span class="timeline-party party-inc">INC</span></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2009</div>
+            <div><div class="timeline-desc">అద్దంకి నుండి 2వ సారి MLA — YSRCP తో కలిసి పనిచేశారు.</div><span class="timeline-party party-ysrcp">YSRCP</span></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2014</div>
+            <div><div class="timeline-desc">అద్దంకి నుండి 3వ సారి గెలుపు. TDP కి మారారు.</div><span class="timeline-party party-tdp">TDP</span></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2019</div>
+            <div><div class="timeline-desc">TDP కి మారిన 23 మంది YSRCP MLAs లో గెలిచిన ఏకైక నేత!</div><span class="timeline-party party-tdp">TDP</span></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2024</div>
+            <div><div class="timeline-desc">1,16,418 ఓట్లతో 5వ సారి గెలుపు. 24,890 ఓట్ల ఆధిక్యం, 54% vote share. Energy Minister గా నియమితులయ్యారు.</div><span class="timeline-party party-tdp">TDP</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="bio-card">
+          <h3>వ్యక్తిగత వివరాలు</h3>
+          <div class="bio-detail-item"><div class="bio-detail-label">పుట్టిన తేదీ</div><div class="bio-detail-val">నవంబర్ 9, 1974</div></div>
+          <div class="bio-detail-item"><div class="bio-detail-label">స్వగ్రామం</div><div class="bio-detail-val">పొతురాజుగండి</div></div>
+          <div class="bio-detail-item"><div class="bio-detail-label">నియోజకవర్గం</div><div class="bio-detail-val">అద్దంకి, ప్రకాశం జిల్లా</div></div>
+          <div class="bio-detail-item"><div class="bio-detail-label">పార్టీ</div><div class="bio-detail-val">తెలుగు దేశం పార్టీ (TDP)</div></div>
+          <div class="bio-detail-item"><div class="bio-detail-label">పదవి</div><div class="bio-detail-val">విద్యుత్ మంత్రి · AP (June 2024–)</div></div>
+          <div class="bio-detail-item"><div class="bio-detail-label">విద్యాభ్యాసం</div><div class="bio-detail-val">Bapuji Institute of Engineering &amp; Technology (1997)</div></div>
+          <div class="bio-detail-item"><div class="bio-detail-label">వ్యాపకాలు</div><div class="bio-detail-val">Industrialist &amp; Politician</div></div>
+          <div class="bio-detail-item"><div class="bio-detail-label">జీవిత భాగస్వామి</div><div class="bio-detail-val">గొట్టిపాటి ఝాన్సీ</div></div>
+          <div class="bio-detail-item"><div class="bio-detail-label">2024 ఓట్లు</div><div class="bio-detail-val">1,16,418 (54% vote share)</div></div>
+          <div class="bio-detail-item"><div class="bio-detail-label">Focus Areas</div><div class="bio-detail-val">Energy, Renewable Power, రైతు సంక్షేమం</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<script>
+// ── KEYWORDS ──────────────────────────────────
+const KEYWORDS = [
+  { word: "ఉచిత విద్యుత్ కనెక్షన్లు",  count: 820, type: "pos" },
+  { word: "Renewable Energy",              count: 690, type: "pos" },
+  { word: "Tariff Reduction",              count: 610, type: "pos" },
+  { word: "రైతు సంక్షేమం",               count: 570, type: "pos" },
+  { word: "Solar Power 4000 MW",           count: 450, type: "pos" },
+  { word: "Irrigation Delay",              count: 300, type: "neg" },
+  { word: "Opposition Criticism",          count: 260, type: "neg" },
+  { word: "PM-KUSUM Scheme",              count: 390, type: "pos" },
+];
+const maxK = Math.max(...KEYWORDS.map(k => k.count));
+document.getElementById('keywordContainer').innerHTML = KEYWORDS.map((k,i) => `
+  <div class="keyword-item">
+    <div class="keyword-rank">${i+1}</div>
+    <div class="keyword-word">${k.word}</div>
+    <div class="keyword-bar-wrap"><div class="keyword-bar ${k.type}" style="width:${Math.round(k.count/maxK*100)}%"></div></div>
+    <div class="keyword-count">${k.count}</div>
+  </div>
+`).join('');
+
+// ── YOUTUBE VIDEOS ─────────────────────────────
+const YT_VIDEOS = [
+  {
+    url: "https://www.youtube.com/watch?v=EwF7Kr-dqpw",
+    channel: "TV5 News", date: "2025",
+    title: "Press Meet on Electricity Bill Reduction | Minister Gottipati Ravi Kumar",
+    summary: "విద్యుత్ చార్జీలు తగ్గించే దిశగా ప్రభుత్వం చర్యలు తీసుకుంటోంది. True-Down mechanism ద్వారా ఇప్పటికే 13 పైసలు/యూనిట్ తగ్గింపు. ₹4,900 కోట్ల True-Up charges ప్రజలపై వేయలేదు. యూనిట్‌కు ₹1.19 మరింత తగ్గించే లక్ష్యం అంటూ మంత్రి ప్రెస్ మీట్‌లో చెప్పారు.",
+    tag: "pos", tagLabel: "Positive"
+  },
+  {
+    url: "https://www.youtube.com/watch?v=1brSEFdTfks",
+    channel: "TV5 News", date: "2025",
+    title: "Minister Gottipati Ravi Kumar Shares Good News to AP Farmers",
+    summary: "రాష్ట్రంలో 22,30,703 ఉచిత వ్యవసాయ విద్యుత్ కనెక్షన్లు ఇచ్చాం. మరో 46,000 కనెక్షన్లు సీజన్ ముందు మంజూరు చేస్తాం. PM-KUSUM scheme కింద 4.5 లక్షల రైతులకు solar benefits. రైతులే మా ప్రభుత్వ ప్రాధాన్యత అని మంత్రి స్పష్టం చేశారు.",
+    tag: "pos", tagLabel: "Positive"
+  },
+  {
+    url: "https://www.youtube.com/watch?v=1WutJtwIGZk",
+    channel: "TV5 News", date: "2025",
+    title: "Speech Over Developments In Electricity Department | Gottipati Ravi Kumar",
+    summary: "విద్యుత్ శాఖలో సమూల మార్పులు వస్తున్నాయి. మాజీ ప్రభుత్వం 5 సంవత్సరాలు ఒక్క కొత్త ప్రాజెక్ట్ పెట్టలేదు — దీని వల్ల ₹30,000 కోట్ల నష్టం. TDP ప్రభుత్వం వచ్చిన నాటి నుండి కరెంటు కోత లేదు, చార్జీలు పెంచలేదు అని మంత్రి చెప్పారు.",
+    tag: "pos", tagLabel: "Positive"
+  },
+  {
+    url: "https://www.youtube.com/watch?v=deCkmrGLdOg",
+    channel: "NTV Telugu", date: "2024",
+    title: "MLA Gottipati Ravi Kumar Exclusive Interview | Face to Face | NTV",
+    summary: "NTV Face to Face ఎక్స్‌క్లూజివ్ ఇంటర్వ్యూ — అద్దంకి అభివృద్ధి, తన రాజకీయ ప్రస్థానం, TDP తో అనుబంధం, ముందుంది ఏమిటి అన్న విషయాలపై మాట్లాడారు. 5 సార్లు ఎన్నికైన నేతగా తన అనుభవం పంచుకున్నారు.",
+    tag: "neu", tagLabel: "Informative"
+  },
+  {
+    url: "https://www.youtube.com/watch?v=GucjSZMYOtI",
+    channel: "NTV Telugu", date: "2025",
+    title: "Minister Gottipati Ravi Kumar Sensational Comments on YSRCP | AP Politics | NTV",
+    summary: "YSRCP నేతలపై గొట్టిపాటి సంచలన వ్యాఖ్యలు. మాజీ ప్రభుత్వ హయాంలో విద్యుత్ రంగం ఎలా దెబ్బతిందో వివరించారు. జనానికి అబద్ధాలు చెప్పడం ఆపమని ప్రతిపక్షాన్ని హెచ్చరించారు.",
+    tag: "neg", tagLabel: "Political"
+  },
+  {
+    url: "https://www.youtube.com/watch?v=SCvmuaFNhkc",
+    channel: "TV5 News", date: "2025",
+    title: "AP Minister Gottipati Ravi Kumar Face To Face | YS Jagan | Super Six Meeting",
+    summary: "YS జగన్ పై, Super Six బహిరంగ సభ పై మంత్రి వ్యాఖ్యలు. TDP-NDA ప్రభుత్వ విజయాలు వివరిస్తూ ప్రతిపక్షానికి సవాల్ విసిరారు. AP అభివృద్ధిలో ప్రజలు తమ వైపే ఉన్నారని నమ్మకంగా చెప్పారు.",
+    tag: "neu", tagLabel: "Political"
+  },
+  {
+    url: "https://www.youtube.com/watch?v=L-hOHk_nhL4",
+    channel: "hmtv", date: "2024",
+    title: "Gottipati Ravi Kumar Takes Oath As MLA | AP Assembly Sessions | hmtv",
+    summary: "2024 ఎన్నికల్లో 5వ సారి గెలిచిన తర్వాత AP Assembly Session లో MLA గా ప్రమాణ స్వీకారం చేశారు. విద్యుత్ మంత్రిగా నియమించబడిన తర్వాత మొదటి అసెంబ్లీ సమావేశంలో పాల్గొన్నారు.",
+    tag: "pos", tagLabel: "Positive"
+  },
+  {
+    url: "https://www.youtube.com/watch?v=pltKubz0XMc",
+    channel: "TV5 News", date: "2024",
+    title: "TDP MLA Gottipati Ravi Kumar Sensational Comments on Jagan & YCP Leaders | TV5",
+    summary: "జగన్ మరియు YCP నేతలపై సంచలన వ్యాఖ్యలు. YSRCP హయాంలో అద్దంకి నియోజకవర్గంపై నిర్లక్ష్యం, అభివృద్ధి ఆగిపోవడంపై ఆగ్రహం వ్యక్తం చేశారు. ప్రజలు జవాబు అడుగుతారని హెచ్చరించారు.",
+    tag: "neg", tagLabel: "Political"
+  },
+];
+
+document.getElementById('ytGrid').innerHTML = YT_VIDEOS.map(v => `
+  <a class="yt-card" href="${v.url}" target="_blank" rel="noopener">
+    <div class="yt-thumb">
+      <div class="yt-thumb-placeholder">▶</div>
+      <div class="yt-play-btn">▶</div>
+      <div class="yt-channel-bar">
+        <div class="yt-channel-name"><div class="yt-channel-dot"></div>${v.channel}</div>
+        <div class="yt-date">${v.date}</div>
+      </div>
+    </div>
+    <div class="yt-body">
+      <div class="yt-title">${v.title}</div>
+      <div class="yt-summary">${v.summary}</div>
+      <div class="yt-footer">
+        <div class="yt-watch">▶ Watch on YouTube →</div>
+        <span class="yt-tag ${v.tag}">${v.tagLabel}</span>
+      </div>
+    </div>
+  </a>
+`).join('');
+
+// ── NEWS CHANNELS ──────────────────────────────
+const NEWS = [
+  {
+    channel: "tv9", channelName: "TV9 Telugu", color: "#ff6600",
+    date: "Feb 19, 2026",
+    title: "అన్నదాతలకు ఏపీ సర్కార్ మరో గుడ్‌న్యూస్ — మరో 46 వేల వ్యవసాయ ఉచిత విద్యుత్ కనెక్షన్లు!",
+    summary: "మంత్రి గొట్టిపాటి రవి కుమార్ అసెంబ్లీలో ప్రకటించారు — రాష్ట్రవ్యాప్తంగా 22,30,703 ఉచిత వ్యవసాయ విద్యుత్ కనెక్షన్లు అందించాం. FY 2025-26 లో ₹839.44 కోట్లు ఖర్చు చేశాం. సీజన్ ముందు మరో 46,000 కనెక్షన్లు మంజూరు అవుతాయని హామీ ఇచ్చారు.",
+    tag: "pos"
+  },
+  {
+    channel: "tv5", channelName: "TV5 News", color: "#0099cc",
+    date: "Aug 26, 2025",
+    title: "వినాయక చవితి మండపాలకు ఉచిత విద్యుత్ — మంత్రి గొట్టిపాటి రవి కుమార్ ప్రకటన",
+    summary: "రాష్ట్రంలో దాదాపు 15,000 తాత్కాలిక వినాయక చవితి మండపాలకు ఉచిత విద్యుత్ అందిస్తాం. ₹25 కోట్లు కేటాయించాం. ప్రజల ఆధ్యాత్మిక కార్యక్రమాలకు ఎలాంటి అంతరాయం లేకుండా చేస్తాం అని ఒంగోలులో ప్రకటించారు.",
+    tag: "pos"
+  },
+  {
+    channel: "other", channelName: "Deccan Chronicle", color: "#cc0000",
+    date: "Feb 6, 2026",
+    title: "Working Towards Power Tariff Reduction of Rs 1.19 Per Unit — Gottipati Ravi Kumar",
+    summary: "ముఖ్యమంత్రి చంద్రబాబు ఆదేశాల మేరకు విద్యుత్ చార్జీలు యూనిట్‌కు ₹1.19 తగ్గించే దిశగా పనిచేస్తున్నాం. 18 నెలల్లో 75,000 కొత్త వ్యవసాయ కనెక్షన్లు. 200 నూతన సబ్‌స్టేషన్లు నిర్మాణంలో ఉన్నాయి. మాజీ ప్రభుత్వం 5 ఏళ్ళు ఒక్క విద్యుత్ ప్రాజెక్ట్ పెట్టలేదు.",
+    tag: "pos"
+  },
+  {
+    channel: "ntv", channelName: "NTV Telugu", color: "#0066cc",
+    date: "Mar 3, 2025",
+    title: "రైతుల సంక్షేమంలో ప్రభుత్వం నిబద్ధత — మంత్రి గొట్టిపాటి అసెంబ్లీ ప్రకటన",
+    summary: "అసెంబ్లీ బడ్జెట్ సమావేశాల్లో మంత్రి ప్రసంగం — 40,336 వ్యవసాయ కనెక్షన్లు మంజూరు, 22,709 ఇప్పటికే అందిచాం. PM-KUSUM solar program కింద 4.5 లక్షల రైతులకు లాభాలు. ప్రతి కనెక్షన్‌కు ₹2.6 లక్షలు పెట్టుబడి — ఉచిత విద్యుత్‌కు ₹12,400 కోట్లు ఖర్చు.",
+    tag: "pos"
+  },
+  {
+    channel: "sakshi", channelName: "Sakshi TV", color: "#00aa44",
+    date: "Oct 30, 2025",
+    title: "సైక్లోన్ తర్వాత విద్యుత్ పునరుద్ధరణ — మంత్రి నారా లోకేష్‌కు ఫోన్ చేసి సమన్వయం",
+    summary: "సైక్లోన్ నష్టం తర్వాత విద్యుత్ పునరుద్ధరణపై IT మంత్రి నారా లోకేష్‌తో మంత్రి గొట్టిపాటి నేరుగా సమన్వయం చేశారు. 'సార్.. చేసేస్తున్నాం సర్!' అని అధికారులకు ఆదేశాలు ఇచ్చారు. అత్యవసర విద్యుత్ టీమ్‌లను ప్రభావిత జిల్లాలకు పంపారు.",
+    tag: "neu"
+  },
+  {
+    channel: "other", channelName: "Prajavartha", color: "#9933cc",
+    date: "Sep 5, 2024",
+    title: "వరద బాధితులకు మంత్రి గొట్టిపాటి రవి కుమార్ రూ. కోటి ప్రత్యక్ష సాయం",
+    summary: "విజయవాడ, బాపట్ల, రేపల్లె ప్రాంతాల వరద బాధితులకు మంత్రి గొట్టిపాటి నేరుగా ₹1 కోటి సాయం అందించారు. ఎక్కడ అవసరమైనా నేను ఉంటానని మంత్రి చెప్పారు. వరద ప్రభావిత ప్రాంతాల్లో విద్యుత్ అత్యవసరంగా పునరుద్ధరించాలని అధికారులను ఆదేశించారు.",
+    tag: "pos"
+  },
+  {
+    channel: "sakshi", channelName: "Sakshi TV", color: "#00aa44",
+    date: "Mar 25, 2026",
+    title: "ఇబ్బందులు ఉంటాయి తెలిసినా అశోక్ బాబు మాత్రం... | TDP నేతపై జగన్ వ్యాఖ్యలు",
+    summary: "YS జగన్ TDP మంత్రి గొట్టిపాటి రవి కుమార్ పాలనపై విమర్శలు చేశారు. అయితే TDP వర్గాలు తమ విద్యుత్ సంస్కరణలే నిరూపణ అని వ్యాఖ్యానించాయి. రాజకీయ వేడి మరింత పెరిగింది.",
+    tag: "neg"
+  },
+  {
+    channel: "other", channelName: "Hans India", color: "#ff9900",
+    date: "Sep 2024",
+    title: "AP will soon become energy storage capital — Minister Gottipati Ravi Kumar",
+    summary: "Renewable Energy Investors Meet-2024 లో మంత్రి ప్రసంగం — AP ని దేశంలో Energy Storage Capital గా తీర్చిదిద్దుతాం. Battery systems, Pumped hydro storage technologies వాడతాం. Rooftop solar & microgrids ద్వారా గ్రామ స్థాయిలో విద్యుత్ ఉత్పత్తి చేస్తాం.",
+    tag: "pos"
+  },
+];
+
+function renderNews(filter) {
+  const list = document.getElementById('newsList');
+  list.innerHTML = NEWS.map(n => `
+    <div class="news-card ${filter === 'all' || filter === n.channel ? 'show' : ''}">
+      <div class="news-card-top">
+        <div class="news-source">
+          <div class="news-source-dot" style="background:${n.color}"></div>
+          <div class="news-source-name" style="color:${n.color}">${n.channelName}</div>
+        </div>
+        <div class="news-date">${n.date}</div>
+      </div>
+      <div class="news-title">${n.title}</div>
+      <div class="news-summary">${n.summary}</div>
+      <span class="news-tag ${n.tag}">${n.tag==='pos'?'Positive':n.tag==='neg'?'Negative':'Neutral'}</span>
+    </div>
+  `).join('');
+}
+renderNews('all');
+
+function filterNews(ch, btn) {
+  document.querySelectorAll('.news-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderNews(ch);
+}
+
+// ── TABS ──────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
