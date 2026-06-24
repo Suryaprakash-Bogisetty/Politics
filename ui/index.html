@@ -648,6 +648,7 @@
   }
   .feed-item:last-child { border-bottom: none; }
   .feed-item:hover { background: var(--bg-3); }
+  .feed-item-clickable { cursor: pointer; }
   .feed-item-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
   .feed-item-platform {
     display: flex; align-items: center; gap: 6px;
@@ -1462,8 +1463,10 @@ function selectPolitician(idx) {
 
   // feed
   const feed = document.getElementById('feedBody');
-  feed.innerHTML = p.feed.map(item => `
-    <div class="feed-item">
+  feed.innerHTML = p.feed.map(item => {
+    const tileUrl = item.channelUrl && !item.channelUrl.startsWith('PASTE_') ? item.channelUrl : '#';
+    return `
+    <div class="feed-item feed-item-clickable" onclick="window.open('${tileUrl}','_blank')">
       <div class="feed-item-top">
         <div class="feed-item-platform">
           <span style="color:${item.color}">${item.icon}</span> ${item.platform}
@@ -1471,12 +1474,14 @@ function selectPolitician(idx) {
         </div>
         <div class="feed-item-time">${item.time}</div>
       </div>
-      <div class="feed-item-text">${item.text}</div>
+      <a class="feed-item-link" href="${tileUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+        <div class="feed-item-text">${item.text}</div>
+      </a>
       <div class="feed-item-tags">
         ${item.tags.map((t,i) => `<span class="feed-tag ${t}">${item.tagLabels[i]}</span>`).join('')}
       </div>
     </div>
-  `).join('');
+  `}).join('');
 
   // keywords
   const maxCount = Math.max(...p.keywords.map(k => k.count));
@@ -1597,7 +1602,7 @@ function _renderRealFeed(ytVideos, newsArticles) {
   const ytItems = ytVideos.slice(0, 5).map(v => {
     const cls = _sentimentClass(v.sentiment.positive, v.sentiment.negative);
     return `
-      <div class="feed-item">
+      <div class="feed-item feed-item-clickable" onclick="window.open('${v.url}','_blank')">
         <div class="feed-item-top">
           <div class="feed-item-platform">
             <span style="color:var(--yt)">▶</span> YouTube
@@ -1621,7 +1626,7 @@ function _renderRealFeed(ytVideos, newsArticles) {
   const newsItems = newsArticles.slice(0, 4).map(n => {
     const cls = n.sentiment === 'positive' ? 'pos' : n.sentiment === 'negative' ? 'neg' : 'neu';
     return `
-      <div class="feed-item">
+      <div class="feed-item feed-item-clickable" onclick="window.open('${n.url}','_blank')">
         <div class="feed-item-top">
           <div class="feed-item-platform">
             <span style="color:var(--text-2)">📰</span> News
