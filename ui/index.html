@@ -4,47 +4,84 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AP Pulse — Politician Sentiment Intelligence</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-0: #070b14;
-    --bg-1: #0d1424;
-    --bg-2: #111d30;
-    --bg-3: #172540;
-    --bg-card: #1a2a42;
-    --border: #1e3050;
-    --border-bright: #2a4070;
-    --accent: #1e90ff;
-    --accent-glow: rgba(30,144,255,0.15);
-    --accent-dim: #1260b0;
-    --positive: #00d97e;
-    --positive-dim: rgba(0,217,126,0.12);
-    --negative: #ff4757;
-    --negative-dim: rgba(255,71,87,0.12);
-    --neutral: #f4a829;
-    --neutral-dim: rgba(244,168,41,0.12);
-    --text-1: #e8f0fe;
-    --text-2: #8da4c8;
-    --text-3: #4d6490;
+    /* Light, airy SaaS surfaces */
+    --bg-0: #f4f6fb;          /* app background */
+    --bg-1: #ffffff;          /* sidebar / panels */
+    --bg-2: #eef2f9;          /* subtle tint */
+    --bg-3: #eaeef6;          /* inputs / wells */
+    --bg-card: #ffffff;
+    --border: #e3e8f1;
+    --border-bright: #d4dbe8;
+    --accent: #2563eb;        /* indigo-blue */
+    --accent-glow: rgba(37,99,235,0.10);
+    --accent-dim: #1d4ed8;
+    --positive: #10b981;      /* emerald */
+    --positive-dim: rgba(16,185,129,0.12);
+    --negative: #f43f5e;      /* rose */
+    --negative-dim: rgba(244,63,94,0.10);
+    --neutral: #f59e0b;       /* amber */
+    --neutral-dim: rgba(245,158,11,0.12);
+    --text-1: #0f172a;        /* slate-900 */
+    --text-2: #475569;        /* slate-600 */
+    --text-3: #94a3b8;        /* slate-400 */
     --fb: #1877f2;
     --yt: #ff0000;
-    --tw: #1da1f2;
-    --shadow: 0 4px 24px rgba(0,0,0,0.5);
+    --tw: #0f172a;
+    --news: #8b5cf6;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,0.04), 0 2px 8px rgba(15,23,42,0.05);
+    --shadow: 0 2px 4px rgba(15,23,42,0.05), 0 8px 24px rgba(15,23,42,0.07);
+    --shadow-lg: 0 4px 8px rgba(15,23,42,0.06), 0 20px 48px rgba(15,23,42,0.12);
+    --glass: #ffffff;
+    --glass-border: #e9edf5;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
     background: var(--bg-0);
     color: var(--text-1);
     min-height: 100vh;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* ── SCROLLBAR ───────────────────────────────── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg-1); }
-  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #d4dbe8; border-radius: 4px; border: 2px solid var(--bg-0); }
+  ::-webkit-scrollbar-thumb:hover { background: #b9c3d6; }
+
+  /* ── Shared entrance + count-up animations ──────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes popIn {
+    0%   { opacity: 0; transform: scale(0.94); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+  .anim-in { animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+
+  /* Staggered entrance for the main grids */
+  .overall-grid > *  { animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+  .overall-grid > *:nth-child(2) { animation-delay: 0.08s; }
+  .platform-grid > * { animation: popIn 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+  .platform-grid > *:nth-child(1) { animation-delay: 0.04s; }
+  .platform-grid > *:nth-child(2) { animation-delay: 0.10s; }
+  .platform-grid > *:nth-child(3) { animation-delay: 0.16s; }
+  .platform-grid > *:nth-child(4) { animation-delay: 0.22s; }
+  .activity-grid > * { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.18s; }
 
   /* ══════════════════════════════════════════════
      LOGIN PAGE
@@ -61,25 +98,35 @@
     flex-direction: column;
     justify-content: center;
     padding: 60px 80px;
-    background: linear-gradient(135deg, var(--bg-0) 0%, var(--bg-2) 100%);
+    background:
+      radial-gradient(1200px 600px at 0% 0%, rgba(37,99,235,0.10), transparent 55%),
+      radial-gradient(1000px 500px at 100% 100%, rgba(16,185,129,0.08), transparent 55%),
+      linear-gradient(135deg, #ffffff 0%, #eef3fc 100%);
     position: relative;
     overflow: hidden;
+    color: var(--text-1);
   }
   .login-left::before {
     content: '';
     position: absolute;
-    top: -200px; left: -200px;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(30,144,255,0.08) 0%, transparent 70%);
+    top: -160px; right: -120px;
+    width: 460px; height: 460px;
+    background: radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%);
     pointer-events: none;
+    animation: floatBlob 14s ease-in-out infinite;
   }
   .login-left::after {
     content: '';
     position: absolute;
-    bottom: -100px; right: -100px;
+    bottom: -120px; left: -80px;
     width: 400px; height: 400px;
-    background: radial-gradient(circle, rgba(0,217,126,0.05) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(139,92,246,0.10) 0%, transparent 70%);
     pointer-events: none;
+    animation: floatBlob 18s ease-in-out infinite reverse;
+  }
+  @keyframes floatBlob {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%     { transform: translate(20px,-24px) scale(1.08); }
   }
 
   .login-brand {
@@ -94,7 +141,7 @@
     border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     font-size: 22px;
-    box-shadow: 0 4px 20px rgba(30,144,255,0.35);
+    box-shadow: 0 4px 20px rgba(30,144,255,0.4);
   }
   .login-brand-name { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
   .login-brand-name span { color: var(--accent); }
@@ -116,57 +163,34 @@
     padding: 40px;
     background: var(--bg-1);
     border-left: 1px solid var(--border);
+    box-shadow: -20px 0 60px rgba(15,23,42,0.04);
   }
 
-  .login-card {
-    width: 100%;
-    max-width: 380px;
-  }
-
+  .login-card { width: 100%; max-width: 380px; }
   .login-card h2 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
   .login-card p { font-size: 14px; color: var(--text-2); margin-bottom: 36px; }
 
   .form-group { margin-bottom: 20px; }
   .form-group label {
-    display: block;
-    font-size: 12px;
-    color: var(--text-2);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 8px;
-    font-weight: 600;
+    display: block; font-size: 12px; color: var(--text-2);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 8px; font-weight: 600;
   }
   .form-group input {
-    width: 100%;
-    background: var(--bg-3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 14px;
-    color: var(--text-1);
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%; background: var(--bg-3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 16px; font-size: 14px; color: var(--text-1);
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .form-group input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
-  }
+  .form-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
   .form-group input::placeholder { color: var(--text-3); }
 
   .login-btn {
-    width: 100%;
-    padding: 13px;
+    width: 100%; padding: 13px;
     background: linear-gradient(135deg, var(--accent), var(--accent-dim));
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 8px;
+    border: none; border-radius: 8px; color: #fff; font-size: 15px; font-weight: 600;
+    cursor: pointer; margin-top: 8px;
     transition: opacity 0.2s, transform 0.1s;
-    box-shadow: 0 4px 16px rgba(30,144,255,0.3);
-    letter-spacing: 0.3px;
+    box-shadow: 0 4px 16px rgba(30,144,255,0.3); letter-spacing: 0.3px;
   }
   .login-btn:hover { opacity: 0.9; }
   .login-btn:active { transform: scale(0.98); }
@@ -181,23 +205,19 @@
 
   /* ── HEADER ──────────────────────────────────── */
   .header {
-    height: 62px;
-    background: var(--bg-1);
+    height: 64px;
+    background: rgba(255,255,255,0.85);
     border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    padding: 0 24px;
-    gap: 20px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    backdrop-filter: blur(10px);
+    display: flex; align-items: center;
+    padding: 0 24px; gap: 20px;
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
   }
 
   .header-brand {
     display: flex; align-items: center; gap: 10px;
-    text-decoration: none; color: inherit;
-    flex-shrink: 0;
+    text-decoration: none; color: inherit; flex-shrink: 0;
   }
   .header-brand-icon {
     width: 34px; height: 34px;
@@ -205,75 +225,61 @@
     border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
     font-size: 16px;
+    box-shadow: 0 2px 10px rgba(30,144,255,0.35);
   }
   .header-brand-name { font-size: 16px; font-weight: 700; }
   .header-brand-name span { color: var(--accent); }
 
-  .header-search {
-    flex: 1;
-    max-width: 560px;
-    position: relative;
-  }
+  .header-search { flex: 1; max-width: 560px; position: relative; }
   .header-search input {
-    width: 100%;
-    background: var(--bg-3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 16px 9px 40px;
-    font-size: 14px;
-    color: var(--text-1);
-    outline: none;
+    width: 100%; background: var(--bg-3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 16px 9px 40px;
+    font-size: 14px; color: var(--text-1); outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .header-search input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
-  }
+  .header-search input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
   .header-search input::placeholder { color: var(--text-3); }
   .search-icon {
-    position: absolute;
-    left: 12px; top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-3);
-    font-size: 15px;
+    position: absolute; left: 12px; top: 50%;
+    transform: translateY(-50%); color: var(--text-3); font-size: 15px;
   }
 
   .header-right { display: flex; align-items: center; gap: 16px; margin-left: auto; }
 
   .header-badge {
+    font-size: 11px; font-weight: 700;
+    padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px;
+    transition: all 0.4s ease;
+  }
+  .header-badge.demo {
+    background: var(--neutral-dim);
+    border: 1px solid rgba(244,168,41,0.3);
+    color: var(--neutral);
+  }
+  .header-badge.live {
     background: var(--positive-dim);
-    border: 1px solid rgba(0,217,126,0.25);
+    border: 1px solid rgba(0,217,126,0.3);
     color: var(--positive);
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 20px;
-    letter-spacing: 0.5px;
+    animation: badge-pulse 2s ease-in-out infinite;
+  }
+  @keyframes badge-pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,217,126,0.3); }
+    50% { box-shadow: 0 0 0 4px rgba(0,217,126,0); }
   }
 
-  .header-user {
-    display: flex; align-items: center; gap: 10px;
-    cursor: pointer;
-  }
+  .header-user { display: flex; align-items: center; gap: 10px; cursor: pointer; }
   .header-avatar {
-    width: 34px; height: 34px;
-    border-radius: 50%;
+    width: 34px; height: 34px; border-radius: 50%;
     background: linear-gradient(135deg, #2a4a8a, var(--accent));
     display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700;
-    border: 2px solid var(--border-bright);
+    font-size: 13px; font-weight: 700; border: 2px solid var(--border-bright);
   }
   .header-username { font-size: 13px; font-weight: 600; }
 
   .logout-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text-2);
-    padding: 6px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: all 0.2s;
+    background: none; border: 1px solid var(--border);
+    color: var(--text-2); padding: 6px 14px; border-radius: 6px;
+    cursor: pointer; font-size: 13px; transition: all 0.2s;
   }
   .logout-btn:hover { border-color: var(--negative); color: var(--negative); }
 
@@ -282,120 +288,95 @@
 
   /* ── SIDEBAR ─────────────────────────────────── */
   .sidebar {
-    width: 300px;
-    flex-shrink: 0;
+    width: 300px; flex-shrink: 0;
     background: var(--bg-1);
     border-right: 1px solid var(--border);
-    overflow-y: auto;
-    padding: 24px 16px;
+    overflow-y: auto; padding: 20px 14px;
   }
 
   .profile-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 22px 18px;
-    text-align: center;
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px; padding: 0 18px 20px;
+    text-align: center; margin-bottom: 14px;
+    position: relative; overflow: hidden;
+    box-shadow: var(--shadow);
+    cursor: pointer; transition: box-shadow 0.25s, transform 0.2s;
   }
-  .profile-card-clickable { cursor: pointer; transition: border-color 0.2s, transform 0.15s; }
-  .profile-card-clickable:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .profile-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+  /* Banner: leader photo (set via JS) under a party-tinted gradient */
+  .profile-banner {
+    position: absolute; top: 0; left: 0; right: 0; height: 100px;
+    background-size: cover; background-position: center 18%;
+    background-repeat: no-repeat; z-index: 0;
+  }
+  .profile-banner::after {
+    content: ''; position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0) 40%, var(--bg-1) 100%),
+      linear-gradient(135deg, var(--party-tint, rgba(37,99,235,0.78)) 0%, rgba(124,58,237,0.70) 100%);
+  }
+  .profile-card:hover .profile-banner { background-position: center 14%; transition: background-position 0.5s; }
   .profile-link-hint {
-    font-size: 11px; color: var(--accent);
-    margin-top: 12px; font-weight: 600;
-    opacity: 0; transition: opacity 0.2s;
+    font-size: 11px; color: var(--accent); margin-top: 12px;
+    font-weight: 600; opacity: 0; transition: opacity 0.2s;
   }
-  .profile-card-clickable:hover .profile-link-hint { opacity: 1; }
-  .profile-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 80px;
-    background: linear-gradient(135deg, #0d2a5c, #0a1d40);
-  }
+  .profile-card:hover .profile-link-hint { opacity: 1; }
 
   .profile-avatar {
-    width: 76px; height: 76px;
-    border-radius: 50%;
-    border: 3px solid var(--accent);
-    margin: 0 auto 12px;
-    position: relative;
-    z-index: 1;
+    width: 88px; height: 88px; border-radius: 50%;
+    border: 4px solid #fff;
+    margin: 40px auto 12px; position: relative; z-index: 1;
     display: flex; align-items: center; justify-content: center;
-    font-size: 28px; font-weight: 700;
+    font-size: 30px; font-weight: 800; color: #fff;
     background: linear-gradient(135deg, #1a3a7c, #0f2450);
-    box-shadow: 0 4px 20px rgba(30,144,255,0.3);
-    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(37,99,235,0.28); overflow: hidden;
   }
-  .profile-avatar img,
-  .politician-thumb img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
+  .profile-avatar img, .politician-thumb img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
   }
 
-  .profile-name {
-    font-size: 16px; font-weight: 700; margin-bottom: 4px;
-  }
+  .profile-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; position: relative; z-index: 1; }
   .profile-party {
-    display: inline-block;
-    background: var(--accent-glow);
-    border: 1px solid rgba(30,144,255,0.3);
-    color: var(--accent);
-    font-size: 11px; font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 20px;
-    margin-bottom: 10px;
-    letter-spacing: 0.5px;
+    display: inline-block; background: var(--accent-glow);
+    border: 1px solid rgba(30,144,255,0.3); color: var(--accent);
+    font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+    margin-bottom: 8px; letter-spacing: 0.5px;
+    position: relative; z-index: 1;
   }
-  .profile-role { font-size: 12px; color: var(--text-2); margin-bottom: 14px; }
-
-  .profile-meta { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .profile-role { font-size: 12px; color: var(--text-2); margin-bottom: 12px; position: relative; z-index: 1; }
+  .profile-meta { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
   .profile-meta-tag {
-    background: var(--bg-3);
-    border: 1px solid var(--border);
-    font-size: 11px;
-    color: var(--text-2);
-    padding: 4px 10px;
-    border-radius: 6px;
-    display: flex; align-items: center; gap: 5px;
+    background: var(--bg-3); border: 1px solid var(--border);
+    font-size: 10px; color: var(--text-2); padding: 3px 8px; border-radius: 6px;
+    display: flex; align-items: center; gap: 4px;
   }
 
   .score-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 16px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border); border-radius: 16px; padding: 18px;
+    margin-bottom: 14px; box-shadow: var(--shadow-sm);
   }
   .score-card-title {
     font-size: 11px; color: var(--text-3);
-    text-transform: uppercase; letter-spacing: 1px;
-    font-weight: 600; margin-bottom: 14px;
-    display: flex; align-items: center; gap: 6px;
+    text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 6px;
   }
 
   .score-ring {
     display: flex; align-items: center; justify-content: center;
-    margin-bottom: 16px;
-    position: relative;
+    margin-bottom: 14px; position: relative;
   }
-  .ring-wrap {
-    position: relative;
-    width: 100px; height: 100px;
-  }
+  .ring-wrap { position: relative; width: 100px; height: 100px; }
   .ring-svg { transform: rotate(-90deg); }
   .ring-bg { fill: none; stroke: var(--bg-3); stroke-width: 8; }
-  .ring-pos { fill: none; stroke: var(--positive); stroke-width: 8; stroke-linecap: round;
-    transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1); }
-  .ring-neg { fill: none; stroke: var(--negative); stroke-width: 8; stroke-linecap: round;
-    transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1); }
+  .ring-pos {
+    fill: none; stroke: var(--positive); stroke-width: 8; stroke-linecap: round;
+    transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);
+  }
   .ring-label {
     position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+    transform: translate(-50%, -50%); text-align: center;
   }
   .ring-pct { font-size: 20px; font-weight: 700; color: var(--positive); }
   .ring-sub { font-size: 10px; color: var(--text-3); }
@@ -408,22 +389,15 @@
   .platform-bars { margin-top: 4px; }
   .platform-row { margin-bottom: 12px; }
   .platform-row-top {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 5px;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;
   }
   .platform-label {
     display: flex; align-items: center; gap: 7px;
     font-size: 12px; font-weight: 600; color: var(--text-2);
   }
-  .platform-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-  }
+  .platform-dot { width: 8px; height: 8px; border-radius: 50%; }
   .platform-pcts { font-size: 11px; color: var(--text-3); }
-  .platform-bar-wrap {
-    height: 6px; background: var(--bg-3);
-    border-radius: 3px; overflow: hidden;
-    position: relative;
-  }
+  .platform-bar-wrap { height: 6px; background: var(--bg-3); border-radius: 3px; overflow: hidden; }
   .platform-bar-pos {
     height: 100%; border-radius: 3px;
     background: linear-gradient(90deg, var(--positive), #00b86a);
@@ -431,118 +405,226 @@
   }
 
   .sidebar-section-title {
-    font-size: 11px; color: var(--text-3);
-    text-transform: uppercase; letter-spacing: 1px;
-    font-weight: 600; margin-bottom: 10px; margin-top: 4px;
+    font-size: 11px; color: var(--text-3); text-transform: uppercase;
+    letter-spacing: 1px; font-weight: 600; margin-bottom: 10px; margin-top: 6px;
     display: flex; align-items: center; gap: 6px;
   }
 
-  /* Politician switcher */
-  .politician-list { display: flex; flex-direction: column; gap: 6px; }
+  .politician-list { display: flex; flex-direction: column; gap: 5px; }
   .politician-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.15s;
+    display: flex; align-items: center; gap: 10px; padding: 9px 11px;
+    border-radius: 8px; cursor: pointer; transition: all 0.15s;
     border: 1px solid transparent;
   }
   .politician-item:hover { background: var(--bg-3); border-color: var(--border); }
   .politician-item.active { background: var(--accent-glow); border-color: rgba(30,144,255,0.3); }
   .politician-thumb {
-    width: 36px; height: 36px; border-radius: 50%;
+    width: 34px; height: 34px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 700; flex-shrink: 0;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
     background: linear-gradient(135deg, #1a3a7c, #0f2450);
-    border: 2px solid var(--border-bright);
+    border: 2px solid var(--border-bright); overflow: hidden;
   }
   .politician-item.active .politician-thumb { border-color: var(--accent); }
   .politician-info { flex: 1; min-width: 0; }
   .politician-info-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
   .politician-info-party { font-size: 11px; color: var(--text-3); }
-  .politician-score {
-    font-size: 13px; font-weight: 700;
-    color: var(--positive);
+  .politician-score { font-size: 13px; font-weight: 700; color: var(--positive); }
+
+  /* ── ANALYSIS BAR ────────────────────────────── */
+  .analysis-bar {
+    display: none; align-items: center; gap: 12px;
+    padding: 12px 24px; background: var(--bg-1);
+    border-bottom: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .analysis-bar-label { font-size: 13px; color: var(--text-2); font-weight: 600; white-space: nowrap; }
+  .date-picker {
+    background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 14px; color: var(--text-1); font-size: 14px;
+    outline: none; cursor: pointer; transition: border-color 0.2s;
+  }
+  .date-picker:focus { border-color: var(--accent); }
+  .date-picker::-webkit-calendar-picker-indicator { filter: invert(0.3); cursor: pointer; }
+
+  .analyze-btn {
+    display: flex; align-items: center; gap: 8px; padding: 8px 22px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+    border: none; border-radius: 8px; color: #fff; font-size: 14px; font-weight: 600;
+    cursor: pointer; white-space: nowrap; transition: opacity 0.2s, transform 0.1s;
+    box-shadow: 0 3px 12px rgba(30,144,255,0.3);
+  }
+  .analyze-btn:hover { opacity: 0.85; }
+  .analyze-btn:active { transform: scale(0.97); }
+  .analyze-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  .analysis-status {
+    font-size: 13px; padding: 6px 14px; border-radius: 20px; font-weight: 500; display: none;
+  }
+  .analysis-status.ok {
+    display: inline-block; background: var(--positive-dim);
+    border: 1px solid rgba(0,217,126,0.25); color: var(--positive);
+  }
+  .analysis-status.err {
+    display: inline-block; background: var(--negative-dim);
+    border: 1px solid rgba(255,71,87,0.25); color: var(--negative);
   }
 
   /* ── MAIN CONTENT ────────────────────────────── */
   .main {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px;
-    background: var(--bg-0);
+    flex: 1; overflow-y: auto; padding: 22px; background: var(--bg-0);
   }
 
   .section-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;
   }
-  .section-title { font-size: 16px; font-weight: 700; }
-  .section-sub { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+  .section-title { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; }
+  .section-sub { font-size: 13px; color: var(--text-3); margin-top: 3px; }
 
-  .badge-live {
-    background: var(--negative-dim);
-    border: 1px solid rgba(255,71,87,0.3);
-    color: var(--negative);
-    font-size: 11px; font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 20px;
-    display: flex; align-items: center; gap: 5px;
+  .badge-state {
+    font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 20px;
+    display: flex; align-items: center; gap: 6px; transition: all 0.4s ease;
+    letter-spacing: 0.4px;
   }
-  .badge-live::before {
+  .badge-state.demo {
+    background: var(--neutral-dim);
+    border: 1px solid rgba(244,168,41,0.3);
+    color: var(--neutral);
+  }
+  .badge-state.live {
+    background: var(--positive-dim);
+    border: 1px solid rgba(0,217,126,0.3);
+    color: var(--positive);
+  }
+  .badge-state.live::before {
     content: '';
-    width: 6px; height: 6px;
-    background: var(--negative);
-    border-radius: 50%;
-    animation: blink 1.2s infinite;
+    width: 7px; height: 7px; background: var(--positive);
+    border-radius: 50%; animation: blink 1.2s infinite;
   }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
+  /* ── HERO GAUGE ──────────────────────────────── */
+  .hero-card {
+    display: flex; align-items: center; gap: 36px;
+    background:
+      radial-gradient(600px 300px at 100% 0%, rgba(37,99,235,0.06), transparent 60%),
+      var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 28px 32px; margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    position: relative; overflow: hidden;
+    animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  /* Party-colored left rail set via JS on .hero-card */
+  .hero-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+    background: var(--party-color, var(--accent)); z-index: 3;
+  }
+
+  /* Leader photo as a soft background on the right side of the hero */
+  .hero-bg {
+    position: absolute; top: 0; right: 0; bottom: 0; width: 46%;
+    background-size: cover; background-position: center 22%;
+    background-repeat: no-repeat;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.85) 100%);
+            mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.85) 100%);
+    opacity: 0.22; pointer-events: none; z-index: 0;
+    transition: opacity 0.4s, background-image 0.4s;
+  }
+  .hero-card:hover .hero-bg { opacity: 0.30; }
+  .hero-gauge, .hero-info { position: relative; z-index: 2; }
+
+  /* Official ID / link buttons */
+  .hero-socials { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+  .social-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12px; font-weight: 700; text-decoration: none;
+    padding: 7px 13px; border-radius: 10px;
+    background: #fff; border: 1px solid var(--border);
+    color: var(--text-2); box-shadow: var(--shadow-sm);
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .social-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .social-btn .si { font-size: 14px; line-height: 1; }
+  .social-btn.sb-tw:hover  { border-color: #0f172a;  color: #0f172a; }
+  .social-btn.sb-fb:hover  { border-color: var(--fb); color: var(--fb); }
+  .social-btn.sb-yt:hover  { border-color: var(--yt); color: var(--yt); }
+  .social-btn.sb-party { font-weight: 800; }
+  .social-btn.sb-party .si { font-size: 13px; }
+
+  .hero-ring-wrap { position: relative; width: 200px; height: 200px; flex-shrink: 0; }
+  .hero-ring-svg { transform: rotate(-90deg); }
+  .hero-ring-bg { fill: none; stroke: var(--bg-3); stroke-width: 15; }
+  .hero-ring-pos {
+    fill: none; stroke: url(#heroGrad); stroke-width: 15; stroke-linecap: round;
+    transition: stroke-dashoffset 1.4s cubic-bezier(0.34,1.2,0.4,1), stroke 0.6s;
+    filter: drop-shadow(0 3px 8px rgba(16,185,129,0.35));
+  }
+  .hero-ring-label {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%); text-align: center;
+  }
+  .hero-mood { font-size: 40px; line-height: 1; margin-bottom: 4px; }
+  .hero-pct { font-size: 42px; font-weight: 900; letter-spacing: -2px; color: var(--text-1); font-variant-numeric: tabular-nums; }
+  .hero-pct-sub { font-size: 11px; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
+
+  .hero-info { flex: 1; min-width: 0; }
+  .hero-verdict-tag {
+    display: inline-block; font-size: 12px; font-weight: 800;
+    padding: 5px 14px; border-radius: 20px; margin-bottom: 12px;
+    letter-spacing: 0.3px; text-transform: uppercase;
+  }
+  .hero-verdict-tag.t-pos { background: var(--positive-dim); color: #0b7a55; }
+  .hero-verdict-tag.t-mix { background: var(--neutral-dim);  color: #b46a06; }
+  .hero-verdict-tag.t-neg { background: var(--negative-dim); color: #c11d3c; }
+  .hero-verdict { font-size: 22px; font-weight: 700; line-height: 1.35; color: var(--text-1); margin-bottom: 20px; letter-spacing: -0.3px; }
+  .hero-verdict b { font-weight: 800; }
+
+  .hero-split { display: flex; gap: 28px; flex-wrap: wrap; }
+  .hero-split-item { display: flex; align-items: center; gap: 9px; }
+  .hero-split-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .hero-split-val { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .hero-split-val.pos { color: var(--positive); }
+  .hero-split-val.neg { color: var(--negative); }
+  .hero-split-val.acc { color: var(--accent); }
+  .hero-split-lbl { display: block; font-size: 11px; color: var(--text-3); font-weight: 600; margin-top: 1px; }
+
+  @media (max-width: 760px) {
+    .hero-card { flex-direction: column; text-align: center; }
+    .hero-split { justify-content: center; }
+  }
+
   /* ── OVERALL CARDS ───────────────────────────── */
-  .overall-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .overall-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
 
   .overall-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 24px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.2s;
+    background: var(--glass);
+    border: 1px solid var(--glass-border); border-radius: 18px; padding: 24px;
+    position: relative; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: var(--shadow);
   }
-  .overall-card:hover { border-color: var(--border-bright); }
-  .overall-card.pos { border-left: 3px solid var(--positive); }
-  .overall-card.neg { border-left: 3px solid var(--negative); }
+  .overall-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .overall-card.pos { background: linear-gradient(135deg, #ffffff 0%, rgba(16,185,129,0.06) 100%); border-left: 4px solid var(--positive); }
+  .overall-card.neg { background: linear-gradient(135deg, #ffffff 0%, rgba(244,63,94,0.05) 100%); border-left: 4px solid var(--negative); }
   .overall-card::before {
-    content: '';
-    position: absolute;
-    top: -30px; right: -30px;
-    width: 120px; height: 120px;
-    border-radius: 50%;
-    pointer-events: none;
+    content: ''; position: absolute; top: -40px; right: -40px;
+    width: 150px; height: 150px; border-radius: 50%; pointer-events: none;
   }
-  .overall-card.pos::before { background: radial-gradient(circle, rgba(0,217,126,0.07) 0%, transparent 70%); }
-  .overall-card.neg::before { background: radial-gradient(circle, rgba(255,71,87,0.07) 0%, transparent 70%); }
+  .overall-card.pos::before { background: radial-gradient(circle, rgba(16,185,129,0.14) 0%, transparent 70%); }
+  .overall-card.neg::before { background: radial-gradient(circle, rgba(244,63,94,0.12) 0%, transparent 70%); }
 
-  .overall-card-icon { font-size: 28px; margin-bottom: 12px; }
+  .overall-card-icon { font-size: 28px; margin-bottom: 10px; }
   .overall-card-label {
-    font-size: 11px; color: var(--text-3);
-    text-transform: uppercase; letter-spacing: 1px;
-    font-weight: 600; margin-bottom: 8px;
+    font-size: 11px; color: var(--text-3); text-transform: uppercase;
+    letter-spacing: 1px; font-weight: 700; margin-bottom: 7px;
   }
-  .overall-card-pct { font-size: 42px; font-weight: 800; line-height: 1; }
+  .overall-card-pct { font-size: 48px; font-weight: 900; line-height: 1; letter-spacing: -1.5px; font-variant-numeric: tabular-nums; }
   .overall-card.pos .overall-card-pct { color: var(--positive); }
   .overall-card.neg .overall-card-pct { color: var(--negative); }
-  .overall-card-delta {
-    font-size: 12px; margin-top: 8px; font-weight: 500;
-    display: flex; align-items: center; gap: 4px;
-  }
-  .overall-card-meta { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+  .overall-card-meta { font-size: 12px; color: var(--text-3); margin-top: 6px; }
 
   .overall-bar-wrap {
     height: 8px; background: var(--bg-3);
-    border-radius: 4px; overflow: hidden;
-    margin-top: 16px;
+    border-radius: 4px; overflow: hidden; margin-top: 16px;
   }
   .overall-bar-fill {
     height: 100%; border-radius: 4px;
@@ -552,129 +634,133 @@
   .overall-card.neg .overall-bar-fill { background: linear-gradient(90deg, var(--negative), #cc0020); }
 
   /* ── PLATFORM CARDS ──────────────────────────── */
-  .platform-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  .platform-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px; margin-bottom: 20px;
+  }
 
   .platform-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px;
-    transition: all 0.2s;
-    cursor: default;
+    background: var(--glass);
+    border: 1px solid var(--glass-border); border-radius: 16px; padding: 18px;
+    transition: transform 0.2s, box-shadow 0.2s; box-shadow: var(--shadow-sm);
+    position: relative; overflow: hidden;
   }
-  .platform-card:hover { border-color: var(--border-bright); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .platform-card::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    opacity: 0.9;
+  }
+  .platform-card.pc-fb::after  { background: linear-gradient(90deg, var(--fb), #4293fb); }
+  .platform-card.pc-yt::after  { background: linear-gradient(90deg, var(--yt), #ff5a5a); }
+  .platform-card.pc-tw::after  { background: linear-gradient(90deg, #0f172a, #475569); }
+  .platform-card.pc-nw::after  { background: linear-gradient(90deg, var(--news), #c4b5fd); }
+  .platform-card:hover {
+    transform: translateY(-4px); box-shadow: var(--shadow-lg);
+  }
 
   .platform-card-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 18px;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
   }
   .platform-card-name {
     display: flex; align-items: center; gap: 8px;
-    font-size: 14px; font-weight: 700;
+    font-size: 13px; font-weight: 700;
   }
   .platform-icon {
-    width: 32px; height: 32px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px; font-weight: 700;
+    width: 30px; height: 30px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700;
   }
   .platform-icon.fb { background: rgba(24,119,242,0.15); color: var(--fb); border: 1px solid rgba(24,119,242,0.2); }
   .platform-icon.yt { background: rgba(255,0,0,0.12); color: var(--yt); border: 1px solid rgba(255,0,0,0.2); }
-  .platform-icon.tw { background: rgba(29,161,242,0.12); color: var(--tw); border: 1px solid rgba(29,161,242,0.2); }
+  .platform-icon.tw { background: rgba(15,23,42,0.06); color: var(--tw); border: 1px solid rgba(15,23,42,0.12); }
+  .platform-icon.nw { background: rgba(167,139,250,0.12); color: var(--news); border: 1px solid rgba(167,139,250,0.2); }
 
   .platform-card-status {
-    font-size: 11px; font-weight: 600; padding: 3px 8px;
-    border-radius: 20px;
+    font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px;
   }
   .status-positive { background: var(--positive-dim); color: var(--positive); border: 1px solid rgba(0,217,126,0.2); }
   .status-mixed { background: var(--neutral-dim); color: var(--neutral); border: 1px solid rgba(244,168,41,0.2); }
+  .status-demo { background: rgba(77,100,144,0.2); color: var(--text-3); border: 1px solid rgba(77,100,144,0.3); }
 
-  .platform-big-stats {
-    display: flex; gap: 16px; margin-bottom: 16px;
-  }
+  .platform-big-stats { display: flex; gap: 14px; margin-bottom: 12px; }
   .platform-big-stat { flex: 1; }
-  .platform-big-stat-val { font-size: 26px; font-weight: 800; }
+  .platform-big-stat-val { font-size: 24px; font-weight: 800; }
   .platform-big-stat-val.pos { color: var(--positive); }
   .platform-big-stat-val.neg { color: var(--negative); }
-  .platform-big-stat-label { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+  .platform-big-stat-label { font-size: 10px; color: var(--text-3); margin-top: 2px; }
 
-  .dual-bar { height: 8px; border-radius: 4px; overflow: hidden; background: var(--bg-3); position: relative; margin-bottom: 8px; }
-  .dual-bar-pos {
-    position: absolute; left: 0; top: 0; height: 100%;
-    background: linear-gradient(90deg, var(--positive), #00b86a);
-    border-radius: 4px;
-    transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
-  }
-  .dual-bar-neg {
-    position: absolute; right: 0; top: 0; height: 100%;
-    background: linear-gradient(90deg, #cc0020, var(--negative));
-    border-radius: 4px;
-    transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
-  }
+  .chart-wrap { height: 32px; margin-bottom: 10px; }
 
   .platform-mini-stats {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 8px; margin-top: 12px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px;
   }
   .mini-stat {
-    background: var(--bg-3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 10px;
+    background: var(--bg-2); border: 1px solid var(--glass-border);
+    border-radius: 9px; padding: 8px 10px;
   }
-  .mini-stat-val { font-size: 14px; font-weight: 700; }
+  .mini-stat-val { font-size: 13px; font-weight: 700; }
   .mini-stat-label { font-size: 10px; color: var(--text-3); margin-top: 1px; }
 
   /* ── ACTIVITY FEED ───────────────────────────── */
-  .activity-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+  .activity-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
 
   .feed-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    overflow: hidden;
+    background: var(--glass);
+    border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden;
+    box-shadow: var(--shadow-sm);
   }
   .feed-card-header {
-    padding: 16px 18px;
-    border-bottom: 1px solid var(--border);
+    padding: 15px 18px; border-bottom: 1px solid var(--glass-border);
     display: flex; justify-content: space-between; align-items: center;
+    background: linear-gradient(180deg, rgba(37,99,235,0.03), transparent);
   }
   .feed-card-title { font-size: 13px; font-weight: 700; }
-  .feed-card-body { padding: 8px 0; max-height: 280px; overflow-y: auto; }
+  .feed-card-body { padding: 6px 0; max-height: 300px; overflow-y: auto; }
 
   .feed-item {
-    padding: 12px 18px;
-    border-bottom: 1px solid var(--border);
-    transition: background 0.15s;
+    padding: 13px 18px; border-bottom: 1px solid var(--border);
+    transition: background 0.15s, box-shadow 0.15s;
+    border-left: 3px solid transparent;
+    animation: fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both;
   }
   .feed-item:last-child { border-bottom: none; }
-  .feed-item:hover { background: var(--bg-3); }
+  .feed-item:hover { background: #f8fafd; border-left-color: var(--accent); }
   .feed-item-clickable { cursor: pointer; }
-  .feed-item-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .feed-item-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
   .feed-item-platform {
     display: flex; align-items: center; gap: 6px;
     font-size: 11px; font-weight: 600; color: var(--text-2);
   }
-  .feed-item-time { font-size: 10px; color: var(--text-3); }
+  .feed-item-time { font-size: 10px; color: var(--text-3); white-space: nowrap; }
   .feed-channel-sep { color: var(--text-3); }
   .feed-channel-badge {
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: 600;
-    transition: text-decoration 0.15s;
+    color: var(--accent); text-decoration: none; font-weight: 600; transition: text-decoration 0.15s;
   }
   .feed-channel-badge:hover { text-decoration: underline; }
-  .feed-item-text { font-size: 13px; color: var(--text-1); line-height: 1.5; margin-bottom: 8px; }
-  .feed-item-tags { display: flex; gap: 6px; }
+
+  .feed-item-thumb {
+    width: 104px; height: 60px; border-radius: 8px; object-fit: cover;
+    float: right; margin-left: 12px; margin-bottom: 4px;
+    border: 1px solid var(--glass-border); flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.10);
+    transition: transform 0.2s;
+  }
+  .feed-item:hover .feed-item-thumb { transform: scale(1.04); }
+  .feed-item-title { font-size: 13px; font-weight: 600; color: var(--text-1); margin-bottom: 3px; line-height: 1.4; }
+  .feed-item-text { font-size: 12px; color: var(--text-2); line-height: 1.5; margin-bottom: 7px; }
+  .feed-item-tags { display: flex; gap: 6px; clear: both; }
   .feed-tag {
-    font-size: 10px; font-weight: 600; padding: 2px 8px;
-    border-radius: 20px;
+    font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px;
   }
   .feed-tag.pos { background: var(--positive-dim); color: var(--positive); }
   .feed-tag.neg { background: var(--negative-dim); color: var(--negative); }
   .feed-tag.neu { background: var(--neutral-dim); color: var(--neutral); }
 
+  .feed-no-results {
+    padding: 28px 18px; text-align: center; color: var(--text-3); font-size: 13px; line-height: 1.8;
+  }
+
   /* keywords */
-  .keywords-list { padding: 12px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .keywords-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
   .keyword-item { display: flex; align-items: center; gap: 10px; }
   .keyword-rank { font-size: 11px; color: var(--text-3); width: 16px; text-align: right; }
   .keyword-word { font-size: 13px; font-weight: 600; flex: 1; }
@@ -682,138 +768,81 @@
   .keyword-bar { height: 100%; border-radius: 2px; transition: width 1s; }
   .keyword-bar.pos { background: var(--positive); }
   .keyword-bar.neg { background: var(--negative); }
+  .keyword-bar.neu { background: var(--neutral); }
   .keyword-count { font-size: 11px; color: var(--text-3); width: 30px; text-align: right; }
 
   /* ── SEARCH SUGGESTIONS ──────────────────────── */
   .search-suggestions {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0; right: 0;
-    background: var(--bg-card);
-    border: 1px solid var(--border-bright);
-    border-radius: 10px;
-    overflow: hidden;
-    z-index: 200;
-    box-shadow: var(--shadow);
-    display: none;
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+    background: #ffffff; border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden; z-index: 200; box-shadow: var(--shadow-lg); display: none;
   }
   .search-suggestions.show { display: block; }
   .suggestion-item {
-    padding: 10px 14px;
-    display: flex; align-items: center; gap: 10px;
-    cursor: pointer;
-    transition: background 0.15s;
-    font-size: 13px;
+    padding: 10px 14px; display: flex; align-items: center; gap: 10px;
+    cursor: pointer; transition: background 0.15s; font-size: 13px;
   }
   .suggestion-item:hover { background: var(--bg-3); }
   .suggestion-item-party { font-size: 11px; color: var(--text-3); }
 
-  /* Separator line in header */
   .header-sep { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
-
-  /* ── ANALYSIS BAR ────────────────────────────── */
-  .analysis-bar {
-    display: none;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 24px;
-    background: var(--bg-1);
-    border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
-  }
-  .analysis-bar-label {
-    font-size: 13px; color: var(--text-2); font-weight: 600; white-space: nowrap;
-  }
-  .date-picker {
-    background: var(--bg-3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 14px;
-    color: var(--text-1);
-    font-size: 14px;
-    outline: none;
-    cursor: pointer;
-    transition: border-color 0.2s;
-  }
-  .date-picker:focus { border-color: var(--accent); }
-  .date-picker::-webkit-calendar-picker-indicator { filter: invert(0.7); cursor: pointer; }
-
-  .analyze-btn {
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 22px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-dim));
-    border: none; border-radius: 8px;
-    color: #fff; font-size: 14px; font-weight: 600;
-    cursor: pointer; white-space: nowrap;
-    transition: opacity 0.2s, transform 0.1s;
-    box-shadow: 0 3px 12px rgba(30,144,255,0.3);
-  }
-  .analyze-btn:hover { opacity: 0.85; }
-  .analyze-btn:active { transform: scale(0.97); }
-  .analyze-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-
-  .analysis-status {
-    font-size: 13px; padding: 6px 14px;
-    border-radius: 20px; font-weight: 500;
-    display: none;
-  }
-  .analysis-status.ok {
-    display: inline-block;
-    background: var(--positive-dim);
-    border: 1px solid rgba(0,217,126,0.25);
-    color: var(--positive);
-  }
-  .analysis-status.err {
-    display: inline-block;
-    background: var(--negative-dim);
-    border: 1px solid rgba(255,71,87,0.25);
-    color: var(--negative);
-  }
 
   /* ── LOADING OVERLAY ─────────────────────────── */
   .loading-overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(7,11,20,0.82);
-    z-index: 999;
-    flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 18px;
+    display: none; position: fixed; inset: 0;
+    background: rgba(244,246,251,0.72); z-index: 999;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    flex-direction: column; align-items: center; justify-content: center; gap: 0;
   }
   .loading-overlay.show { display: flex; }
+
+  .loading-box {
+    background: var(--bg-1); border: 1px solid var(--border);
+    border-radius: 20px; padding: 36px 44px; min-width: 340px;
+    box-shadow: var(--shadow-lg); text-align: center;
+    animation: popIn 0.35s cubic-bezier(0.22,1,0.36,1) both;
+  }
   .loading-spinner {
     width: 44px; height: 44px;
-    border: 3px solid var(--border);
+    border: 3px solid var(--bg-3);
     border-top-color: var(--accent);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
+    margin: 0 auto 22px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-title { font-size: 16px; font-weight: 700; color: var(--text-1); }
-  .loading-sub { font-size: 13px; color: var(--text-3); }
+  .loading-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .loading-sub { font-size: 13px; color: var(--text-3); margin-bottom: 28px; }
 
-  /* ── FEED ITEM LINK (real data) ──────────────── */
-  .feed-item-link {
-    text-decoration: none; color: inherit; display: block;
-    margin: 4px -18px; padding: 4px 18px;
-    border-radius: 6px; transition: background 0.15s;
+  .progress-steps { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+  .progress-step {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px; color: var(--text-3); transition: color 0.3s;
   }
-  .feed-item-link:hover { background: var(--bg-3); }
-  .feed-item-title {
-    font-size: 13px; font-weight: 600;
-    color: var(--text-1); margin-bottom: 4px; line-height: 1.4;
+  .progress-step.active { color: var(--text-1); }
+  .progress-step.done { color: var(--positive); }
+  .step-icon {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; background: var(--bg-3); border: 1px solid var(--border);
+    transition: all 0.3s;
   }
-  .feed-no-results {
-    padding: 28px 18px; text-align: center;
-    color: var(--text-3); font-size: 13px; line-height: 1.8;
+  .progress-step.active .step-icon {
+    background: rgba(30,144,255,0.15); border-color: var(--accent); color: var(--accent);
+    animation: step-pulse 1s ease-in-out infinite;
+  }
+  .progress-step.done .step-icon {
+    background: var(--positive-dim); border-color: var(--positive); color: var(--positive);
+  }
+  @keyframes step-pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(30,144,255,0.3); }
+    50% { box-shadow: 0 0 0 4px rgba(30,144,255,0); }
   }
 </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════
-     LOGIN PAGE
-════════════════════════════════════════════ -->
+<!-- LOGIN PAGE -->
 <div id="loginPage">
   <div class="login-left">
     <div class="login-brand">
@@ -822,12 +851,12 @@
     </div>
     <div class="login-tagline">Politician Sentiment<br><span>Intelligence Platform</span></div>
     <div class="login-sub">
-      Real-time analysis of public sentiment across Facebook, YouTube, and Twitter.
+      Real-time AI analysis of public sentiment across Facebook, YouTube, Twitter/X, and News.
       Track political narratives, monitor negativity spikes, and understand voter perception in Andhra Pradesh.
     </div>
     <div class="login-stats">
       <div class="login-stat">
-        <div class="login-stat-num">3</div>
+        <div class="login-stat-num">4</div>
         <div class="login-stat-label">Platforms</div>
       </div>
       <div class="login-stat">
@@ -835,17 +864,15 @@
         <div class="login-stat-label">Politicians</div>
       </div>
       <div class="login-stat">
-        <div class="login-stat-num">50K+</div>
-        <div class="login-stat-label">Posts Analyzed</div>
+        <div class="login-stat-num">70B</div>
+        <div class="login-stat-label">AI Model</div>
       </div>
     </div>
   </div>
-
   <div class="login-right">
     <div class="login-card">
       <h2>Welcome back</h2>
       <p>Sign in to access your dashboard</p>
-
       <form onsubmit="doLogin(event)">
         <div class="form-group">
           <label>Email Address</label>
@@ -857,15 +884,12 @@
         </div>
         <button class="login-btn" type="submit">Sign In →</button>
       </form>
-
       <div class="login-hint">Demo mode — <span onclick="doLogin(null)">click here</span> to sign in instantly</div>
     </div>
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════
-     DASHBOARD
-════════════════════════════════════════════ -->
+<!-- DASHBOARD -->
 <div id="dashboard">
 
   <!-- HEADER -->
@@ -875,7 +899,6 @@
       <div class="header-brand-name">AP <span>Pulse</span></div>
     </div>
     <div class="header-sep"></div>
-
     <div class="header-search">
       <span class="search-icon">🔍</span>
       <input type="text" id="searchInput" placeholder="Search politician, keyword, or topic…"
@@ -891,17 +914,16 @@
         </div>
         <div class="suggestion-item" onclick="selectPolitician(2)">
           <span>⚡</span>
-          <div><div>Nara Lokesh</div><div class="suggestion-item-party">TDP · Minister</div></div>
+          <div><div>Nara Lokesh</div><div class="suggestion-item-party">TDP · IT Minister</div></div>
         </div>
         <div class="suggestion-item" onclick="selectPolitician(3)">
           <span>🏛️</span>
-          <div><div>Gottipati Ravi Kumar</div><div class="suggestion-item-party">TDP · MLA Ponnur</div></div>
+          <div><div>Gottipati Ravi Kumar</div><div class="suggestion-item-party">TDP · Energy Minister</div></div>
         </div>
       </div>
     </div>
-
     <div class="header-right">
-      <div class="header-badge">● LIVE</div>
+      <div class="header-badge demo" id="headerBadge">◎ DEMO DATA</div>
       <div class="header-sep"></div>
       <div class="header-user">
         <div class="header-avatar">A</div>
@@ -915,9 +937,7 @@
   <div class="analysis-bar" id="analysisBar">
     <span class="analysis-bar-label">📅 Select date:</span>
     <input type="date" id="datePicker" class="date-picker">
-    <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">
-      ⚡ Run Analysis
-    </button>
+    <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">⚡ Run Analysis</button>
     <span class="analysis-status" id="analysisStatus"></span>
   </div>
 
@@ -928,12 +948,13 @@
     <div class="sidebar">
 
       <!-- Profile -->
-      <div class="profile-card profile-card-clickable" id="profileCard" onclick="openProfileLink()" title="Open official profile">
+      <div class="profile-card" id="profileCard" onclick="openProfileLink()" title="Open official profile">
+        <div class="profile-banner" id="profileBanner"></div>
         <div class="profile-avatar" id="profileAvatar">CB</div>
         <div class="profile-name" id="profileName">Chandrababu Naidu</div>
         <div class="profile-party" id="profileParty">TDP</div>
         <div class="profile-role" id="profileRole">Chief Minister · Andhra Pradesh</div>
-        <div class="profile-meta">
+        <div class="profile-meta" id="profileMeta">
           <div class="profile-meta-tag">🏛 Kuppam</div>
           <div class="profile-meta-tag">📅 Since 1995</div>
         </div>
@@ -966,53 +987,40 @@
       <div class="score-card">
         <div class="score-card-title">◫ Platform Breakdown</div>
         <div class="platform-bars">
-
           <div class="platform-row">
             <div class="platform-row-top">
-              <div class="platform-label">
-                <div class="platform-dot" style="background:var(--fb)"></div>
-                Facebook
-              </div>
+              <div class="platform-label"><div class="platform-dot" style="background:var(--fb)"></div>Facebook</div>
               <div class="platform-pcts" id="fbPct">72% / 28%</div>
             </div>
-            <div class="platform-bar-wrap">
-              <div class="platform-bar-pos" id="fbBar" style="width:72%"></div>
-            </div>
+            <div class="platform-bar-wrap"><div class="platform-bar-pos" id="fbBar" style="width:72%"></div></div>
           </div>
-
           <div class="platform-row">
             <div class="platform-row-top">
-              <div class="platform-label">
-                <div class="platform-dot" style="background:var(--yt)"></div>
-                YouTube
-              </div>
+              <div class="platform-label"><div class="platform-dot" style="background:var(--yt)"></div>YouTube</div>
               <div class="platform-pcts" id="ytPct">68% / 32%</div>
             </div>
-            <div class="platform-bar-wrap">
-              <div class="platform-bar-pos" id="ytBar" style="width:68%"></div>
-            </div>
+            <div class="platform-bar-wrap"><div class="platform-bar-pos" id="ytBar" style="width:68%"></div></div>
           </div>
-
           <div class="platform-row">
             <div class="platform-row-top">
-              <div class="platform-label">
-                <div class="platform-dot" style="background:var(--tw)"></div>
-                Twitter / X
-              </div>
+              <div class="platform-label"><div class="platform-dot" style="background:var(--tw)"></div>Twitter / X</div>
               <div class="platform-pcts" id="twPct">61% / 39%</div>
             </div>
-            <div class="platform-bar-wrap">
-              <div class="platform-bar-pos" id="twBar" style="width:61%"></div>
-            </div>
+            <div class="platform-bar-wrap"><div class="platform-bar-pos" id="twBar" style="width:61%"></div></div>
           </div>
-
+          <div class="platform-row">
+            <div class="platform-row-top">
+              <div class="platform-label"><div class="platform-dot" style="background:var(--news)"></div>News</div>
+              <div class="platform-pcts" id="newsPct">65% / 35%</div>
+            </div>
+            <div class="platform-bar-wrap"><div class="platform-bar-pos" id="newsBar" style="width:65%"></div></div>
+          </div>
         </div>
       </div>
 
-      <!-- Politician switcher (populated dynamically from POLITICIANS array) -->
+      <!-- Politician switcher -->
       <div class="sidebar-section-title">◈ Politicians</div>
       <div class="politician-list" id="politicianList"></div>
-
     </div>
 
     <!-- MAIN -->
@@ -1022,9 +1030,54 @@
       <div class="section-header">
         <div>
           <div class="section-title" id="mainTitle">Chandrababu Naidu — Sentiment Overview</div>
-          <div class="section-sub">Last 30 days · 12,480 mentions analyzed</div>
+          <div class="section-sub" id="mainSub">Demo data · Run analysis to see live results</div>
         </div>
-        <div class="badge-live">LIVE DATA</div>
+        <div class="badge-state demo" id="mainBadge">◎ DEMO DATA</div>
+      </div>
+
+      <!-- HERO GAUGE -->
+      <div class="hero-card" id="heroCard">
+        <div class="hero-bg" id="heroBg"></div>
+        <div class="hero-gauge">
+          <div class="hero-ring-wrap">
+            <svg class="hero-ring-svg" viewBox="0 0 200 200" width="200" height="200">
+              <defs>
+                <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#10b981"/>
+                  <stop offset="100%" stop-color="#34d399"/>
+                </linearGradient>
+              </defs>
+              <circle class="hero-ring-bg" cx="100" cy="100" r="82"/>
+              <circle class="hero-ring-pos" id="heroRingPos" cx="100" cy="100" r="82"
+                stroke-dasharray="515" stroke-dashoffset="155"/>
+            </svg>
+            <div class="hero-ring-label">
+              <div class="hero-mood" id="heroMood">😀</div>
+              <div class="hero-pct" id="heroPct">70%</div>
+              <div class="hero-pct-sub">Positive sentiment</div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-info">
+          <div class="hero-verdict-tag" id="heroVerdictTag">Mostly Positive</div>
+          <div class="hero-verdict" id="heroVerdict">People are largely speaking well about <b id="heroName">Chandrababu Naidu</b> today.</div>
+          <div class="hero-split">
+            <div class="hero-split-item">
+              <div class="hero-split-dot" style="background:var(--positive)"></div>
+              <div><span class="hero-split-val pos" id="heroPosVal">70%</span><span class="hero-split-lbl">speaking well</span></div>
+            </div>
+            <div class="hero-split-item">
+              <div class="hero-split-dot" style="background:var(--negative)"></div>
+              <div><span class="hero-split-val neg" id="heroNegVal">30%</span><span class="hero-split-lbl">speaking critically</span></div>
+            </div>
+            <div class="hero-split-item">
+              <div class="hero-split-dot" style="background:var(--accent)"></div>
+              <div><span class="hero-split-val acc" id="heroTotalVal">—</span><span class="hero-split-lbl">conversations analyzed</span></div>
+            </div>
+          </div>
+          <!-- Official IDs / links -->
+          <div class="hero-socials" id="heroSocials"></div>
+        </div>
       </div>
 
       <!-- Overall sentiment cards -->
@@ -1033,33 +1086,29 @@
           <div class="overall-card-icon">✅</div>
           <div class="overall-card-label">Overall Positive</div>
           <div class="overall-card-pct" id="mainPos">70%</div>
-          <div class="overall-card-delta" style="color:var(--positive)">↑ +3.2% vs last month</div>
-          <div class="overall-card-meta">8,736 positive mentions</div>
+          <div class="overall-card-meta" id="mainPosMeta">Demo — run analysis for real data</div>
           <div class="overall-bar-wrap"><div class="overall-bar-fill" id="mainPosBar" style="width:70%"></div></div>
         </div>
         <div class="overall-card neg">
           <div class="overall-card-icon">⚠️</div>
           <div class="overall-card-label">Overall Negative</div>
           <div class="overall-card-pct" id="mainNeg">30%</div>
-          <div class="overall-card-delta" style="color:var(--negative)">↓ −3.2% vs last month</div>
-          <div class="overall-card-meta">3,744 negative mentions</div>
+          <div class="overall-card-meta" id="mainNegMeta">Weighted blend across 4 platforms</div>
           <div class="overall-bar-wrap"><div class="overall-bar-fill" id="mainNegBar" style="width:30%"></div></div>
         </div>
       </div>
 
-      <!-- Platform cards -->
-      <div class="section-header" style="margin-bottom:14px">
+      <!-- Platform cards (4) -->
+      <div class="section-header" style="margin-bottom:12px">
         <div class="section-title">Platform Analysis</div>
       </div>
       <div class="platform-grid">
 
         <!-- Facebook -->
-        <div class="platform-card">
+        <div class="platform-card pc-fb">
           <div class="platform-card-header">
-            <div class="platform-card-name">
-              <div class="platform-icon fb">f</div> Facebook
-            </div>
-            <div class="platform-card-status status-positive">Positive</div>
+            <div class="platform-card-name"><div class="platform-icon fb">f</div> Facebook</div>
+            <div class="platform-card-status status-demo" id="fbStatus">Demo</div>
           </div>
           <div class="platform-big-stats">
             <div class="platform-big-stat">
@@ -1071,29 +1120,24 @@
               <div class="platform-big-stat-label">👎 Negative</div>
             </div>
           </div>
-          <div class="dual-bar">
-            <div class="dual-bar-pos" id="fbDualPos" style="width:72%"></div>
-            <div class="dual-bar-neg" id="fbDualNeg" style="width:28%"></div>
-          </div>
+          <div class="chart-wrap"><canvas id="fbChart"></canvas></div>
           <div class="platform-mini-stats">
             <div class="mini-stat">
-              <div class="mini-stat-val">4,820</div>
-              <div class="mini-stat-label">Posts scraped</div>
+              <div class="mini-stat-val" id="fbPosts">—</div>
+              <div class="mini-stat-label">Posts</div>
             </div>
             <div class="mini-stat">
-              <div class="mini-stat-val">41.2K</div>
+              <div class="mini-stat-val" id="fbComments">—</div>
               <div class="mini-stat-label">Comments</div>
             </div>
           </div>
         </div>
 
         <!-- YouTube -->
-        <div class="platform-card">
+        <div class="platform-card pc-yt">
           <div class="platform-card-header">
-            <div class="platform-card-name">
-              <div class="platform-icon yt">▶</div> YouTube
-            </div>
-            <div class="platform-card-status status-positive">Positive</div>
+            <div class="platform-card-name"><div class="platform-icon yt">▶</div> YouTube</div>
+            <div class="platform-card-status status-demo" id="ytStatus">Demo</div>
           </div>
           <div class="platform-big-stats">
             <div class="platform-big-stat">
@@ -1105,29 +1149,24 @@
               <div class="platform-big-stat-label">👎 Negative</div>
             </div>
           </div>
-          <div class="dual-bar">
-            <div class="dual-bar-pos" id="ytDualPos" style="width:68%"></div>
-            <div class="dual-bar-neg" id="ytDualNeg" style="width:32%"></div>
-          </div>
+          <div class="chart-wrap"><canvas id="ytChart"></canvas></div>
           <div class="platform-mini-stats">
             <div class="mini-stat">
-              <div class="mini-stat-val" id="ytVideosCount">2,136</div>
+              <div class="mini-stat-val" id="ytVideosCount">—</div>
               <div class="mini-stat-label">Videos</div>
             </div>
             <div class="mini-stat">
-              <div class="mini-stat-val" id="ytCommentsCount">28.7K</div>
+              <div class="mini-stat-val" id="ytCommentsCount">—</div>
               <div class="mini-stat-label">Comments</div>
             </div>
           </div>
         </div>
 
         <!-- Twitter -->
-        <div class="platform-card">
+        <div class="platform-card pc-tw">
           <div class="platform-card-header">
-            <div class="platform-card-name">
-              <div class="platform-icon tw">𝕏</div> Twitter / X
-            </div>
-            <div class="platform-card-status status-mixed">Mixed</div>
+            <div class="platform-card-name"><div class="platform-icon tw">𝕏</div> Twitter / X</div>
+            <div class="platform-card-status status-demo" id="twStatus">Demo</div>
           </div>
           <div class="platform-big-stats">
             <div class="platform-big-stat">
@@ -1139,18 +1178,44 @@
               <div class="platform-big-stat-label">👎 Negative</div>
             </div>
           </div>
-          <div class="dual-bar">
-            <div class="dual-bar-pos" id="twDualPos" style="width:61%"></div>
-            <div class="dual-bar-neg" id="twDualNeg" style="width:39%"></div>
-          </div>
+          <div class="chart-wrap"><canvas id="twChart"></canvas></div>
           <div class="platform-mini-stats">
             <div class="mini-stat">
-              <div class="mini-stat-val">6,340</div>
+              <div class="mini-stat-val" id="twTweets">—</div>
               <div class="mini-stat-label">Tweets</div>
             </div>
             <div class="mini-stat">
-              <div class="mini-stat-val">19.1K</div>
-              <div class="mini-stat-label">Replies</div>
+              <div class="mini-stat-val" id="twEngagement">—</div>
+              <div class="mini-stat-label">Engagement</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- News -->
+        <div class="platform-card pc-nw">
+          <div class="platform-card-header">
+            <div class="platform-card-name"><div class="platform-icon nw">📰</div> News</div>
+            <div class="platform-card-status status-demo" id="newsStatus">Demo</div>
+          </div>
+          <div class="platform-big-stats">
+            <div class="platform-big-stat">
+              <div class="platform-big-stat-val pos" id="newsBig">65%</div>
+              <div class="platform-big-stat-label">👍 Positive</div>
+            </div>
+            <div class="platform-big-stat">
+              <div class="platform-big-stat-val neg" id="newsBigNeg">35%</div>
+              <div class="platform-big-stat-label">👎 Negative</div>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="newsChart"></canvas></div>
+          <div class="platform-mini-stats">
+            <div class="mini-stat">
+              <div class="mini-stat-val" id="newsArticles">—</div>
+              <div class="mini-stat-label">Articles</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-val" id="newsSources">—</div>
+              <div class="mini-stat-label">Sources</div>
             </div>
           </div>
         </div>
@@ -1159,28 +1224,19 @@
 
       <!-- Activity + Keywords -->
       <div class="activity-grid">
-
-        <!-- Recent mentions -->
         <div class="feed-card">
           <div class="feed-card-header">
             <div class="feed-card-title">Recent Mentions</div>
-            <div class="badge-live">LIVE</div>
+            <div class="badge-state demo" id="feedBadge" style="font-size:10px;padding:3px 9px;">◎ DEMO</div>
           </div>
-          <div class="feed-card-body" id="feedBody">
-            <!-- Populated by JS -->
-          </div>
+          <div class="feed-card-body" id="feedBody"></div>
         </div>
-
-        <!-- Top keywords -->
         <div class="feed-card">
           <div class="feed-card-header">
             <div class="feed-card-title">Top Keywords</div>
           </div>
-          <div class="keywords-list" id="keywordList">
-            <!-- Populated by JS -->
-          </div>
+          <div class="keywords-list" id="keywordList"></div>
         </div>
-
       </div>
 
     </div>
@@ -1188,166 +1244,304 @@
 
   <!-- LOADING OVERLAY -->
   <div class="loading-overlay" id="loadingOverlay">
-    <div class="loading-spinner"></div>
-    <div class="loading-title">Analyzing data…</div>
-    <div class="loading-sub">Fetching YouTube videos, transcripts, comments &amp; news. This may take up to 60 seconds.</div>
+    <div class="loading-box">
+      <div class="loading-spinner"></div>
+      <div class="loading-title">Analyzing sentiment…</div>
+      <div class="loading-sub">This may take up to 60 seconds</div>
+      <div class="progress-steps" id="progressSteps">
+        <div class="progress-step" id="step0">
+          <div class="step-icon">1</div>
+          <span>Searching YouTube videos</span>
+        </div>
+        <div class="progress-step" id="step1">
+          <div class="step-icon">2</div>
+          <span>Fetching transcripts &amp; comments</span>
+        </div>
+        <div class="progress-step" id="step2">
+          <div class="step-icon">3</div>
+          <span>Scraping news articles</span>
+        </div>
+        <div class="progress-step" id="step3">
+          <div class="step-icon">4</div>
+          <span>Running AI sentiment analysis</span>
+        </div>
+        <div class="progress-step" id="step4">
+          <div class="step-icon">5</div>
+          <span>Aggregating results</span>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>
 
 <script>
 // ════════════════════════════════════════════════
-// DATA
+// DEMO DATA
 // ════════════════════════════════════════════════
 const POLITICIANS = [
   {
     name: "Chandrababu Naidu", initials: "CB", photo: "images/CBN.png", party: "TDP",
     role: "Chief Minister · Andhra Pradesh", shortRole: "Chief Minister",
     meta: ["🏛 Kuppam", "📅 Since 1995"],
-    profileUrl: "PASTE_CBN_PROFILE_URL_HERE",
+    profileUrl: "",
+    socials: {
+      twitter:  "https://x.com/ncbn",
+      facebook: "https://www.facebook.com/tdp.ncbn.official/",
+      youtube:  "https://www.youtube.com/c/NaraChandrababuNaiduofficial",
+      website:  "https://telugudesam.org/",
+    },
     pos: 70, neg: 30,
-    fb: { pos: 72, neg: 28, posts: "4,820", comments: "41.2K" },
-    yt: { pos: 68, neg: 32, posts: "2,136", comments: "28.7K" },
-    tw: { pos: 61, neg: 39, posts: "6,340", comments: "19.1K" },
+    fb:   { pos: 72, neg: 28 },
+    yt:   { pos: 68, neg: 32 },
+    tw:   { pos: 61, neg: 39 },
+    news: { pos: 65, neg: 35 },
     feed: [
-      { platform: "YouTube", icon: "▶", color: "var(--yt)", time: "2m ago",
-        channel: "TV9 Telugu", channelUrl: "PASTE_TV9_CHANNEL_URL_HERE",
-        text: "చంద్రబాబు నాయుడు గారి నాయకత్వంలో రైతులకు మంచి రోజులు వచ్చాయి!", tags: ["pos"], tagLabels: ["Positive"] },
-      { platform: "Facebook", icon: "f", color: "var(--fb)", time: "8m ago",
-        text: "Steel Plant issue — people are questioning the government's stance on Vizag workers.",
-        tags: ["neg"], tagLabels: ["Negative"] },
-      { platform: "Twitter", icon: "𝕏", color: "var(--tw)", time: "15m ago",
-        text: "Chandrababu's 5G vision for AP is exactly what the state needs. #TDP #DigitalAP",
-        tags: ["pos"], tagLabels: ["Positive"] },
-      { platform: "Facebook", icon: "f", color: "var(--fb)", time: "22m ago",
-        text: "బాబు గారు గ్రామాల్లో రోడ్లు వేయిస్తున్నారు. చాలా మంచి పని.",
-        tags: ["pos"], tagLabels: ["Positive"] },
-      { platform: "YouTube", icon: "▶", color: "var(--yt)", time: "31m ago",
-        channel: "ABN Telugu", channelUrl: "PASTE_ABN_CHANNEL_URL_HERE",
-        text: "Opposition criticizes the state budget — many schemes still pending implementation.",
-        tags: ["neg"], tagLabels: ["Negative"] },
+      { platform:"YouTube", icon:"▶", color:"var(--yt)", time:"2m ago",
+        channel:"TV9 Telugu", channelUrl:"",
+        title:"Chandrababu's Rural Development Push",
+        text:"చంద్రబాబు నాయుడు గారి నాయకత్వంలో రైతులకు మంచి రోజులు వచ్చాయి!", tags:["pos"], tagLabels:["Positive"] },
+      { platform:"Facebook", icon:"f", color:"var(--fb)", time:"8m ago",
+        text:"Steel Plant issue — people are questioning the government's stance on Vizag workers.",
+        tags:["neg"], tagLabels:["Negative"] },
+      { platform:"Twitter", icon:"𝕏", color:"var(--tw)", time:"15m ago",
+        text:"Chandrababu's 5G vision for AP is exactly what the state needs. #TDP #DigitalAP",
+        tags:["pos"], tagLabels:["Positive"] },
+      { platform:"News", icon:"📰", color:"var(--news)", time:"22m ago",
+        title:"AP Government Unveils New Farmer Scheme",
+        text:"బాబు గారు గ్రామాల్లో రోడ్లు వేయిస్తున్నారు. చాలా మంచి పని.", tags:["pos"], tagLabels:["Positive"] },
+      { platform:"YouTube", icon:"▶", color:"var(--yt)", time:"31m ago",
+        channel:"ABN Telugu", channelUrl:"",
+        title:"Opposition Criticises State Budget",
+        text:"Opposition criticizes the state budget — many schemes still pending implementation.",
+        tags:["neg"], tagLabels:["Negative"] },
     ],
-    keywords: [
-      { word: "Development", count: 892, type: "pos" },
-      { word: "Raithu Bharosa", count: 744, type: "pos" },
-      { word: "Steel Plant", count: 612, type: "neg" },
-      { word: "TDP Alliance", count: 580, type: "pos" },
-      { word: "Promises", count: 410, type: "neg" },
-      { word: "Infrastructure", count: 380, type: "pos" },
+    keywords:[
+      {word:"Development",count:892,type:"pos"},{word:"Raithu Bharosa",count:744,type:"pos"},
+      {word:"Steel Plant",count:612,type:"neg"},{word:"TDP Alliance",count:580,type:"pos"},
+      {word:"Promises",count:410,type:"neg"},{word:"Infrastructure",count:380,type:"pos"},
     ]
   },
   {
     name: "Pawan Kalyan", initials: "PK", photo: "images/pawan.png", party: "Jana Sena",
     role: "Deputy Chief Minister · Andhra Pradesh", shortRole: "Deputy CM",
     meta: ["🎬 Actor & Politician", "📅 Since 2014"],
-    profileUrl: "PASTE_PAWAN_PROFILE_URL_HERE",
+    profileUrl: "",
+    socials: {
+      twitter:  "https://x.com/PawanKalyan",
+      facebook: "https://www.facebook.com/PawanKalyan/",
+      youtube:  "https://www.youtube.com/@PKCWoffl",
+      website:  "https://www.janasenaparty.org/",
+    },
     pos: 79, neg: 21,
-    fb: { pos: 82, neg: 18, posts: "6,100", comments: "78.4K" },
-    yt: { pos: 83, neg: 17, posts: "3,420", comments: "56.2K" },
-    tw: { pos: 72, neg: 28, posts: "9,800", comments: "34.5K" },
+    fb:   { pos: 82, neg: 18 },
+    yt:   { pos: 83, neg: 17 },
+    tw:   { pos: 72, neg: 28 },
+    news: { pos: 74, neg: 26 },
     feed: [
-      { platform: "YouTube", icon: "▶", color: "var(--yt)", time: "1m ago",
-        channel: "Sakshi TV", channelUrl: "PASTE_SAKSHI_CHANNEL_URL_HERE",
-        text: "పవన్ కళ్యాణ్ గారు నిజమైన సేనాని! విశాఖ కార్మికుల కోసం నిలబడ్డారు.",
-        tags: ["pos"], tagLabels: ["Positive"] },
-      { platform: "Twitter", icon: "𝕏", color: "var(--tw)", time: "5m ago",
-        text: "Pawan Kalyan visits Vizag Steel Plant, promises workers their rights. #JanaSena #VizagSteel",
-        tags: ["pos"], tagLabels: ["Positive"] },
-      { platform: "Facebook", icon: "f", color: "var(--fb)", time: "14m ago",
-        text: "జనసేన అభిమానులు దేశమంతటా ఉన్నారు. PK గారు గొప్ప నాయకుడు!",
-        tags: ["pos"], tagLabels: ["Positive"] },
-      { platform: "Twitter", icon: "𝕏", color: "var(--tw)", time: "28m ago",
-        text: "Critics say Pawan's political commitments conflict with his film career priorities.",
-        tags: ["neg"], tagLabels: ["Negative"] },
-      { platform: "YouTube", icon: "▶", color: "var(--yt)", time: "45m ago",
-        channel: "NTV Telugu", channelUrl: "PASTE_NTV_CHANNEL_URL_HERE",
-        text: "సత్యమేవ జయతే — పవన్ కళ్యాణ్ ప్రభుత్వంలో అన్ని వర్గాలకు న్యాయం జరుగుతుంది.",
-        tags: ["pos"], tagLabels: ["Positive"] },
+      { platform:"YouTube", icon:"▶", color:"var(--yt)", time:"1m ago",
+        channel:"Sakshi TV", channelUrl:"",
+        title:"Pawan Kalyan Visits Vizag Steel Plant",
+        text:"పవన్ కళ్యాణ్ గారు నిజమైన సేనాని! విశాఖ కార్మికుల కోసం నిలబడ్డారు.", tags:["pos"], tagLabels:["Positive"] },
+      { platform:"Twitter", icon:"𝕏", color:"var(--tw)", time:"5m ago",
+        text:"Pawan Kalyan visits Vizag Steel Plant, promises workers their rights. #JanaSena #VizagSteel",
+        tags:["pos"], tagLabels:["Positive"] },
+      { platform:"Facebook", icon:"f", color:"var(--fb)", time:"14m ago",
+        text:"జనసేన అభిమానులు దేశమంతటా ఉన్నారు. PK గారు గొప్ప నాయకుడు!", tags:["pos"], tagLabels:["Positive"] },
+      { platform:"Twitter", icon:"𝕏", color:"var(--tw)", time:"28m ago",
+        text:"Critics say Pawan's political commitments conflict with his film career priorities.", tags:["neg"], tagLabels:["Negative"] },
+      { platform:"News", icon:"📰", color:"var(--news)", time:"40m ago",
+        title:"Jana Sena's Worker Rights Campaign Gains Momentum",
+        text:"సత్యమేవ జయతే — పవన్ కళ్యాణ్ ప్రభుత్వంలో అన్ని వర్గాలకు న్యాయం జరుగుతుంది.", tags:["pos"], tagLabels:["Positive"] },
     ],
-    keywords: [
-      { word: "Vizag Steel", count: 1240, type: "pos" },
-      { word: "Sena fans", count: 980, type: "pos" },
-      { word: "Film career", count: 410, type: "neg" },
-      { word: "Sanatan Dharma", count: 750, type: "neu" },
-      { word: "Workers Rights", count: 620, type: "pos" },
-      { word: "NDA Alliance", count: 540, type: "pos" },
+    keywords:[
+      {word:"Vizag Steel",count:1240,type:"pos"},{word:"Sena fans",count:980,type:"pos"},
+      {word:"Film career",count:410,type:"neg"},{word:"Sanatan Dharma",count:750,type:"neu"},
+      {word:"Workers Rights",count:620,type:"pos"},{word:"NDA Alliance",count:540,type:"pos"},
     ]
   },
   {
     name: "Nara Lokesh", initials: "NL", photo: "images/lokesh.png", party: "TDP",
     role: "IT & HRD Minister · Andhra Pradesh", shortRole: "IT Minister",
     meta: ["💻 IT Minister", "📅 Since 2019"],
-    profileUrl: "PASTE_LOKESH_PROFILE_URL_HERE",
+    profileUrl: "",
+    socials: {
+      twitter:  "https://x.com/naralokesh",
+      facebook: "https://www.facebook.com/naralokesh/",
+      youtube:  "https://www.youtube.com/@naralokeshofficial",
+      website:  "https://telugudesam.org/",
+    },
     pos: 63, neg: 37,
-    fb: { pos: 65, neg: 35, posts: "2,240", comments: "18.6K" },
-    yt: { pos: 61, neg: 39, posts: "1,180", comments: "14.3K" },
-    tw: { pos: 55, neg: 45, posts: "4,200", comments: "11.8K" },
+    fb:   { pos: 65, neg: 35 },
+    yt:   { pos: 61, neg: 39 },
+    tw:   { pos: 55, neg: 45 },
+    news: { pos: 60, neg: 40 },
     feed: [
-      { platform: "Twitter", icon: "𝕏", color: "var(--tw)", time: "3m ago",
-        text: "Lokesh's Sunrise AP initiative is bringing IT jobs to tier-2 cities. Great vision!",
-        tags: ["pos"], tagLabels: ["Positive"] },
-      { platform: "Facebook", icon: "f", color: "var(--fb)", time: "11m ago",
-        text: "Labour unions fire back at Nara Lokesh over Steel Plant accident statements.",
-        tags: ["neg"], tagLabels: ["Negative"] },
-      { platform: "YouTube", icon: "▶", color: "var(--yt)", time: "19m ago",
-        channel: "TV9 Telugu", channelUrl: "PASTE_TV9_CHANNEL_URL_HERE",
-        text: "లోకేష్ IT పార్కులు నిర్మిస్తున్నారు — ఆంధ్రప్రదేశ్ యువత కి ఉద్యోగాలు వస్తున్నాయి.",
-        tags: ["pos"], tagLabels: ["Positive"] },
-      { platform: "Twitter", icon: "𝕏", color: "var(--tw)", time: "35m ago",
-        text: "Dynasty politics? People question whether Lokesh earned his position or inherited it.",
-        tags: ["neg"], tagLabels: ["Negative"] },
-      { platform: "Facebook", icon: "f", color: "var(--fb)", time: "52m ago",
-        text: "లోకేష్ గారు Steel Plant workers తో నిలబడడం నచ్చింది. చాలా emotional గా మాట్లాడారు.",
-        tags: ["pos"], tagLabels: ["Positive"] },
+      { platform:"Twitter", icon:"𝕏", color:"var(--tw)", time:"3m ago",
+        text:"Lokesh's Sunrise AP initiative is bringing IT jobs to tier-2 cities. Great vision!", tags:["pos"], tagLabels:["Positive"] },
+      { platform:"Facebook", icon:"f", color:"var(--fb)", time:"11m ago",
+        text:"Labour unions fire back at Nara Lokesh over Steel Plant accident statements.", tags:["neg"], tagLabels:["Negative"] },
+      { platform:"YouTube", icon:"▶", color:"var(--yt)", time:"19m ago",
+        channel:"TV9 Telugu", channelUrl:"",
+        title:"Lokesh IT Parks Boost Youth Employment",
+        text:"లోకేష్ IT పార్కులు నిర్మిస్తున్నారు — ఆంధ్రప్రదేశ్ యువత కి ఉద్యోగాలు వస్తున్నాయి.", tags:["pos"], tagLabels:["Positive"] },
+      { platform:"News", icon:"📰", color:"var(--news)", time:"35m ago",
+        title:"Dynasty Politics Debate Resurfaces in AP",
+        text:"Dynasty politics? People question whether Lokesh earned his position or inherited it.", tags:["neg"], tagLabels:["Negative"] },
+      { platform:"Facebook", icon:"f", color:"var(--fb)", time:"52m ago",
+        text:"లోకేష్ గారు Steel Plant workers తో నిలబడడం నచ్చింది. చాలా emotional గా మాట్లాడారు.", tags:["pos"], tagLabels:["Positive"] },
     ],
-    keywords: [
-      { word: "Sunrise AP", count: 680, type: "pos" },
-      { word: "IT jobs", count: 590, type: "pos" },
-      { word: "Dynasty", count: 480, type: "neg" },
-      { word: "Steel Plant", count: 440, type: "neg" },
-      { word: "Youth programs", count: 390, type: "pos" },
-      { word: "Labour unions", count: 310, type: "neg" },
+    keywords:[
+      {word:"Sunrise AP",count:680,type:"pos"},{word:"IT jobs",count:590,type:"pos"},
+      {word:"Dynasty",count:480,type:"neg"},{word:"Steel Plant",count:440,type:"neg"},
+      {word:"Youth programs",count:390,type:"pos"},{word:"Labour unions",count:310,type:"neg"},
     ]
   },
   {
     name: "Gottipati Ravi Kumar", initials: "GR", photo: "images/gottipati.jpg", party: "TDP",
     role: "Minister of Energy · Andhra Pradesh", shortRole: "Energy Minister",
-    meta: ["🏛 Addanki Constituency", "⚡ Energy Minister"],
+    meta: ["🏛 Addanki", "⚡ Energy Minister"],
     profileUrl: "gottipati_profile.html",
+    socials: {
+      twitter:  "https://x.com/ravi_gottipati",
+      facebook: "https://www.facebook.com/AddankiTigerTdpMLA/",
+      website:  "https://telugudesam.org/",
+    },
     pos: 66, neg: 34,
-    fb: { pos: 68, neg: 32, posts: "1,420", comments: "9.6K" },
-    yt: { pos: 64, neg: 36, posts: "640", comments: "5.8K" },
-    tw: { pos: 60, neg: 40, posts: "1,980", comments: "4.2K" },
+    fb:   { pos: 68, neg: 32 },
+    yt:   { pos: 64, neg: 36 },
+    tw:   { pos: 60, neg: 40 },
+    news: { pos: 63, neg: 37 },
     feed: [
-      { platform: "YouTube", icon: "▶", color: "var(--yt)", time: "6m ago",
-        channel: "TV9 Telugu", channelUrl: "PASTE_TV9_CHANNEL_URL_HERE",
-        text: "గొట్టిపాటి రవి కుమార్ గారు పొన్నూరు నియోజకవర్గంలో అభివృద్ధి పనులు చేపట్టారు.",
-        tags: ["pos"], tagLabels: ["Positive"] },
-      { platform: "Facebook", icon: "f", color: "var(--fb)", time: "13m ago",
-        text: "Local residents praise the new road works initiated in Ponnur.",
-        tags: ["pos"], tagLabels: ["Positive"] },
-      { platform: "Twitter", icon: "𝕏", color: "var(--tw)", time: "24m ago",
-        text: "Some voters question the pace of promised irrigation projects in the constituency.",
-        tags: ["neg"], tagLabels: ["Negative"] },
-      { platform: "Facebook", icon: "f", color: "var(--fb)", time: "40m ago",
-        text: "రవి కుమార్ గారు రైతుల సమస్యలు పరిష్కరించడంలో చురుగ్గా ఉన్నారు.",
-        tags: ["pos"], tagLabels: ["Positive"] },
+      { platform:"YouTube", icon:"▶", color:"var(--yt)", time:"6m ago",
+        channel:"TV9 Telugu", channelUrl:"",
+        title:"Gottipati Ravi Kumar — Ponnur Development Works",
+        text:"గొట్టిపాటి రవి కుమార్ గారు పొన్నూరు నియోజకవర్గంలో అభివృద్ధి పనులు చేపట్టారు.", tags:["pos"], tagLabels:["Positive"] },
+      { platform:"Facebook", icon:"f", color:"var(--fb)", time:"13m ago",
+        text:"Local residents praise the new road works initiated in Ponnur.", tags:["pos"], tagLabels:["Positive"] },
+      { platform:"Twitter", icon:"𝕏", color:"var(--tw)", time:"24m ago",
+        text:"Some voters question the pace of promised irrigation projects in the constituency.", tags:["neg"], tagLabels:["Negative"] },
+      { platform:"News", icon:"📰", color:"var(--news)", time:"38m ago",
+        title:"AP Energy Sector Gets Major Boost",
+        text:"రవి కుమార్ గారు రైతుల సమస్యలు పరిష్కరించడంలో చురుగ్గా ఉన్నారు.", tags:["pos"], tagLabels:["Positive"] },
     ],
-    keywords: [
-      { word: "Ponnur Development", count: 410, type: "pos" },
-      { word: "Road Works", count: 320, type: "pos" },
-      { word: "Irrigation Delay", count: 260, type: "neg" },
-      { word: "Farmer Support", count: 290, type: "pos" },
-      { word: "TDP Alliance", count: 230, type: "pos" },
-      { word: "Local Issues", count: 180, type: "neu" },
+    keywords:[
+      {word:"Ponnur Development",count:410,type:"pos"},{word:"Road Works",count:320,type:"pos"},
+      {word:"Irrigation Delay",count:260,type:"neg"},{word:"Farmer Support",count:290,type:"pos"},
+      {word:"TDP Alliance",count:230,type:"pos"},{word:"Local Issues",count:180,type:"neu"},
     ]
   }
 ];
 
+// Party branding — color + emoji emblem (recognizable at a glance)
+const PARTIES = {
+  "TDP":       { color: "#facc15", text: "#7a5c00", emblem: "🚲", full: "Telugu Desam Party", url: "https://telugudesam.org/" },
+  "Jana Sena": { color: "#e11d48", text: "#fff",    emblem: "🌟", full: "Jana Sena Party",    url: "https://www.janasenaparty.org/" },
+  "YSRCP":     { color: "#1d4ed8", text: "#fff",    emblem: "🌀", full: "YSR Congress Party",  url: "https://www.ysrcongress.com" },
+};
+
 let currentIndex = 0;
+let isLive = false;
+
+// Chart.js instances keyed by canvas id
+const _charts = {};
+
+// ── Verdict text from a positive % (plain language for staff) ──
+function _verdict(pos) {
+  if (pos >= 65) return { tag: "Mostly Positive", cls: "t-pos", mood: "😀",
+    line: (n) => `People are largely speaking well about <b>${n}</b>.` };
+  if (pos >= 55) return { tag: "Leaning Positive", cls: "t-pos", mood: "🙂",
+    line: (n) => `Sentiment toward <b>${n}</b> is more favourable than not.` };
+  if (pos >= 45) return { tag: "Mixed Reaction", cls: "t-mix", mood: "😐",
+    line: (n) => `Opinion on <b>${n}</b> is split fairly evenly.` };
+  if (pos >= 35) return { tag: "Leaning Negative", cls: "t-mix", mood: "😟",
+    line: (n) => `Criticism of <b>${n}</b> outweighs praise right now.` };
+  return { tag: "Mostly Negative", cls: "t-neg", mood: "😠",
+    line: (n) => `People are largely speaking critically about <b>${n}</b>.` };
+}
+
+// ── Update hero gauge (used by both demo + live paths) ──
+function _renderHero(name, pos, total) {
+  const neg = 100 - pos;
+  const circ = 2 * Math.PI * 82;
+  document.getElementById('heroRingPos').style.strokeDashoffset = circ * (1 - pos / 100);
+
+  // Ring color shifts with mood
+  const grad = document.getElementById('heroGrad');
+  if (grad) {
+    const stops = grad.querySelectorAll('stop');
+    if (pos >= 55)       { stops[0].setAttribute('stop-color', '#10b981'); stops[1].setAttribute('stop-color', '#34d399'); }
+    else if (pos >= 45)  { stops[0].setAttribute('stop-color', '#f59e0b'); stops[1].setAttribute('stop-color', '#fbbf24'); }
+    else                 { stops[0].setAttribute('stop-color', '#f43f5e'); stops[1].setAttribute('stop-color', '#fb7185'); }
+  }
+
+  const v = _verdict(pos);
+  document.getElementById('heroMood').textContent = v.mood;
+  _countUp(document.getElementById('heroPct'), pos);
+  const tag = document.getElementById('heroVerdictTag');
+  tag.textContent = v.tag; tag.className = 'hero-verdict-tag ' + v.cls;
+  document.getElementById('heroVerdict').innerHTML = v.line(name);
+  _countUp(document.getElementById('heroPosVal'), pos);
+  _countUp(document.getElementById('heroNegVal'), neg);
+  document.getElementById('heroTotalVal').textContent = total != null ? Number(total).toLocaleString() : '—';
+}
+
+// ── Animated count-up for big % numbers ──────────
+function _countUp(el, to, suffix = '%') {
+  if (!el) return;
+  const from = parseFloat(el.dataset._val || '0') || 0;
+  el.dataset._val = to;
+  const dur = 700;
+  const start = performance.now();
+  function frame(now) {
+    const t = Math.min(1, (now - start) / dur);
+    const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+    el.textContent = Math.round(from + (to - from) * eased) + suffix;
+    if (t < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+function _makeBarChart(id, pos, neg) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  if (_charts[id]) { _charts[id].destroy(); }
+  _charts[id] = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: ['Positive', 'Negative'],
+      datasets: [{
+        data: [pos, neg],
+        backgroundColor: ['rgba(16,185,129,0.85)', 'rgba(244,63,94,0.85)'],
+        borderColor: ['rgba(16,185,129,1)', 'rgba(244,63,94,1)'],
+        borderWidth: 0,
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        callbacks: { label: ctx => ' ' + ctx.raw + '%' }
+      }},
+      scales: {
+        x: {
+          display: false, min: 0, max: 100,
+          grid: { display: false }
+        },
+        y: {
+          display: false,
+          grid: { display: false }
+        }
+      },
+      animation: { duration: 800, easing: 'easeInOutQuart' }
+    }
+  });
+}
 
 // ════════════════════════════════════════════════
-// SIDEBAR — renders the politician list dynamically from POLITICIANS
+// RENDER POLITICIAN LIST
 // ════════════════════════════════════════════════
 function renderPoliticianList() {
   const list = document.getElementById('politicianList');
@@ -1364,9 +1558,6 @@ function renderPoliticianList() {
   POLITICIANS.forEach((p, i) => setAvatar(document.getElementById('thumb' + i), p));
 }
 
-// ════════════════════════════════════════════════
-// PROFILE LINK — opens politician's external profile in new tab
-// ════════════════════════════════════════════════
 function openProfileLink() {
   const url = POLITICIANS[currentIndex].profileUrl;
   if (!url || url.startsWith('PASTE_')) return;
@@ -1377,15 +1568,62 @@ function openProfileLink() {
   }
 }
 
-// ════════════════════════════════════════════════
-// AVATAR — uses photo file if present, falls back to initials
-// ════════════════════════════════════════════════
 function setAvatar(el, p) {
   if (p.photo) {
     el.innerHTML = `<img src="${p.photo}" alt="${p.name}" onerror="this.parentElement.innerHTML='${p.initials}'">`;
   } else {
     el.textContent = p.initials;
   }
+}
+
+// Hex (#rrggbb) → rgba string with given alpha
+function _hexToRgba(hex, a) {
+  const h = hex.replace('#', '');
+  const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
+
+// Apply party branding: emblem + color on the chip + hero rail.
+// The chip is clickable → opens the official party page.
+function _applyParty(party) {
+  const b = PARTIES[party] || { color: 'var(--accent)', text: '#fff', emblem: '🏛', full: party, url: '' };
+  const chip = document.getElementById('profileParty');
+  chip.innerHTML = `<span style="margin-right:5px">${b.emblem}</span>${party}`;
+  chip.style.background = b.color;
+  chip.style.color = b.text;
+  chip.style.borderColor = 'transparent';
+  chip.style.cursor = b.url ? 'pointer' : 'default';
+  chip.title = b.url ? `Open ${b.full}` : '';
+  chip.onclick = (e) => { e.stopPropagation(); if (b.url) window.open(b.url, '_blank', 'noopener'); };
+  document.getElementById('heroCard').style.setProperty('--party-color', b.color);
+}
+
+// Leader photo as hero background + sidebar profile banner + official ID buttons
+function _renderLeaderBranding(p) {
+  const bg = document.getElementById('heroBg');
+  bg.style.backgroundImage = p.photo ? `url('${p.photo}')` : 'none';
+
+  // Sidebar profile banner — same photo, party-tinted gradient overlay
+  const banner = document.getElementById('profileBanner');
+  if (banner) {
+    banner.style.backgroundImage = p.photo ? `url('${p.photo}')` : 'none';
+    const party = PARTIES[p.party];
+    if (party) {
+      banner.style.setProperty('--party-tint', _hexToRgba(party.color, 0.72));
+    } else {
+      banner.style.removeProperty('--party-tint');
+    }
+  }
+
+  const s = p.socials || {};
+  const party = PARTIES[p.party];
+  const btns = [];
+  if (s.twitter)  btns.push(`<a class="social-btn sb-tw" href="${s.twitter}"  target="_blank" rel="noopener"><span class="si">𝕏</span> X / Twitter</a>`);
+  if (s.facebook) btns.push(`<a class="social-btn sb-fb" href="${s.facebook}" target="_blank" rel="noopener"><span class="si">f</span> Facebook</a>`);
+  if (s.youtube)  btns.push(`<a class="social-btn sb-yt" href="${s.youtube}"  target="_blank" rel="noopener"><span class="si">▶</span> YouTube</a>`);
+  const partyUrl = (party && party.url) || s.website;
+  if (partyUrl)   btns.push(`<a class="social-btn sb-party" href="${partyUrl}" target="_blank" rel="noopener" style="border-color:${party?party.color:'var(--accent)'}"><span class="si">${party?party.emblem:'🏛'}</span> ${party?party.full:'Official Site'}</a>`);
+  document.getElementById('heroSocials').innerHTML = btns.join('');
 }
 
 // ════════════════════════════════════════════════
@@ -1395,12 +1633,9 @@ function doLogin(e) {
   if (e) e.preventDefault();
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('dashboard').style.display = 'flex';
-
-  // Initialise date picker to today
   const dp = document.getElementById('datePicker');
   dp.value = new Date().toISOString().split('T')[0];
   document.getElementById('analysisBar').style.display = 'flex';
-
   renderPoliticianList();
   selectPolitician(0);
 }
@@ -1408,6 +1643,7 @@ function doLogin(e) {
 function doLogout() {
   document.getElementById('loginPage').style.display = 'flex';
   document.getElementById('dashboard').style.display = 'none';
+  isLive = false;
 }
 
 // ════════════════════════════════════════════════
@@ -1417,100 +1653,192 @@ function selectPolitician(idx) {
   currentIndex = idx;
   const p = POLITICIANS[idx];
 
-  // sidebar active state
-  POLITICIANS.forEach((_, i) => document.getElementById('pol'+i).classList.toggle('active', i === idx));
+  POLITICIANS.forEach((_, i) => document.getElementById('pol' + i).classList.toggle('active', i === idx));
 
-  // profile
   setAvatar(document.getElementById('profileAvatar'), p);
+  document.getElementById('profileName').textContent = p.name;
+  _applyParty(p.party);
+  document.getElementById('profileRole').textContent = p.role;
+  document.getElementById('profileMeta').innerHTML = p.meta.map(m => `<div class="profile-meta-tag">${m}</div>`).join('');
 
-  document.getElementById('profileName').textContent   = p.name;
-  document.getElementById('profileParty').textContent  = p.party;
-  document.getElementById('profileRole').textContent   = p.role;
+  // Leader photo background + official ID buttons + party page link
+  _renderLeaderBranding(p);
 
-  // ring
-  const circumference = 2 * Math.PI * 38; // 238.76
-  const offset = circumference * (1 - p.pos / 100);
-  document.getElementById('ringPos').style.strokeDashoffset = offset;
-  document.getElementById('ringPct').textContent = p.pos + '%';
+  // Hero gauge + plain-language verdict
+  _renderHero(p.name, p.pos, null);
 
-  // sidebar bars
-  document.getElementById('fbBar').style.width = p.fb.pos + '%';
-  document.getElementById('ytBar').style.width = p.yt.pos + '%';
-  document.getElementById('twBar').style.width = p.tw.pos + '%';
-  document.getElementById('fbPct').textContent = p.fb.pos + '% / ' + p.fb.neg + '%';
-  document.getElementById('ytPct').textContent = p.yt.pos + '% / ' + p.yt.neg + '%';
-  document.getElementById('twPct').textContent = p.tw.pos + '% / ' + p.tw.neg + '%';
+  // Ring
+  const circ = 2 * Math.PI * 38;
+  document.getElementById('ringPos').style.strokeDashoffset = circ * (1 - p.pos / 100);
+  _countUp(document.getElementById('ringPct'), p.pos);
 
-  // main title
+  // Sidebar bars (all 4 platforms)
+  _setSidebarBars(p.fb.pos, p.fb.neg, p.yt.pos, p.yt.neg, p.tw.pos, p.tw.neg, p.news.pos, p.news.neg);
+
+  // Main title
   document.getElementById('mainTitle').textContent = p.name + ' — Sentiment Overview';
 
-  // overall cards
-  document.getElementById('mainPos').textContent    = p.pos + '%';
-  document.getElementById('mainNeg').textContent    = p.neg + '%';
+  // Overall cards (demo)
+  _countUp(document.getElementById('mainPos'), p.pos);
+  _countUp(document.getElementById('mainNeg'), p.neg);
   document.getElementById('mainPosBar').style.width = p.pos + '%';
   document.getElementById('mainNegBar').style.width = p.neg + '%';
+  document.getElementById('mainPosMeta').textContent = 'Demo — run analysis for live data';
+  document.getElementById('mainNegMeta').textContent = 'Weighted blend across 4 platforms';
 
-  // platform cards
-  function setPlatform(pfx, data) {
-    document.getElementById(pfx+'Big').textContent    = data.pos + '%';
-    document.getElementById(pfx+'BigNeg').textContent = data.neg + '%';
-    document.getElementById(pfx+'DualPos').style.width = data.pos + '%';
-    document.getElementById(pfx+'DualNeg').style.width = data.neg + '%';
+  // Platform big stats (demo)
+  _setPlatformCard('fb',   p.fb.pos,   p.fb.neg);
+  _setPlatformCard('yt',   p.yt.pos,   p.yt.neg);
+  _setPlatformCard('tw',   p.tw.pos,   p.tw.neg);
+  _setPlatformCard('news', p.news.pos, p.news.neg);
+
+  // Charts
+  _makeBarChart('fbChart',   p.fb.pos,   p.fb.neg);
+  _makeBarChart('ytChart',   p.yt.pos,   p.yt.neg);
+  _makeBarChart('twChart',   p.tw.pos,   p.tw.neg);
+  _makeBarChart('newsChart', p.news.pos, p.news.neg);
+
+  // Reset mini stat counts
+  ['fbPosts','fbComments','ytVideosCount','ytCommentsCount','twTweets','twEngagement','newsArticles','newsSources']
+    .forEach(id => { document.getElementById(id).textContent = '—'; });
+
+  // Reset statuses to demo
+  ['fb','yt','tw','news'].forEach(pfx => {
+    const el = document.getElementById(pfx + 'Status');
+    el.textContent = 'Demo';
+    el.className = 'platform-card-status status-demo';
+  });
+
+  // Feed
+  _renderDemoFeed(p);
+  _renderKeywords(p.keywords);
+
+  // Badge reset if not already live for this session
+  if (!isLive) {
+    _setDemoBadge();
   }
-  setPlatform('fb', p.fb);
-  setPlatform('yt', p.yt);
-  setPlatform('tw', p.tw);
 
-  // feed
-  const feed = document.getElementById('feedBody');
-  feed.innerHTML = p.feed.map(item => {
-    const tileUrl = item.channelUrl && !item.channelUrl.startsWith('PASTE_') ? item.channelUrl : '#';
-    return `
-    <div class="feed-item feed-item-clickable" onclick="window.open('${tileUrl}','_blank')">
-      <div class="feed-item-top">
-        <div class="feed-item-platform">
-          <span style="color:${item.color}">${item.icon}</span> ${item.platform}
-          ${item.channel ? `<span class="feed-channel-sep">·</span><a class="feed-channel-badge" href="${item.channelUrl || '#'}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${item.channel}</a>` : ''}
-        </div>
-        <div class="feed-item-time">${item.time}</div>
-      </div>
-      <a class="feed-item-link" href="${tileUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
-        <div class="feed-item-text">${item.text}</div>
-      </a>
-      <div class="feed-item-tags">
-        ${item.tags.map((t,i) => `<span class="feed-tag ${t}">${item.tagLabels[i]}</span>`).join('')}
-      </div>
-    </div>
-  `}).join('');
-
-  // keywords
-  const maxCount = Math.max(...p.keywords.map(k => k.count));
-  document.getElementById('keywordList').innerHTML = p.keywords.map((k, i) => `
-    <div class="keyword-item">
-      <div class="keyword-rank">${i+1}</div>
-      <div class="keyword-word">${k.word}</div>
-      <div class="keyword-bar-wrap">
-        <div class="keyword-bar ${k.type}" style="width:${Math.round(k.count/maxCount*100)}%"></div>
-      </div>
-      <div class="keyword-count">${k.count}</div>
-    </div>
-  `).join('');
-
-  // search
   document.getElementById('searchInput').value = '';
   hideSuggestions();
 }
 
-// ════════════════════════════════════════════════
-// ANALYSIS — date picker + backend call
-// ════════════════════════════════════════════════
+function _setSidebarBars(fbPos, fbNeg, ytPos, ytNeg, twPos, twNeg, nwPos, nwNeg) {
+  document.getElementById('fbBar').style.width = fbPos + '%';
+  document.getElementById('ytBar').style.width = ytPos + '%';
+  document.getElementById('twBar').style.width = twPos + '%';
+  document.getElementById('newsBar').style.width = nwPos + '%';
+  document.getElementById('fbPct').textContent  = fbPos + '% / ' + fbNeg + '%';
+  document.getElementById('ytPct').textContent  = ytPos + '% / ' + ytNeg + '%';
+  document.getElementById('twPct').textContent  = twPos + '% / ' + twNeg + '%';
+  document.getElementById('newsPct').textContent = nwPos + '% / ' + nwNeg + '%';
+}
 
+function _setPlatformCard(pfx, pos, neg) {
+  _countUp(document.getElementById(pfx + 'Big'), pos);
+  _countUp(document.getElementById(pfx + 'BigNeg'), neg);
+}
+
+function _setDemoBadge() {
+  document.getElementById('mainBadge').className = 'badge-state demo';
+  document.getElementById('mainBadge').textContent = '◎ DEMO DATA';
+  document.getElementById('headerBadge').className = 'header-badge demo';
+  document.getElementById('headerBadge').textContent = '◎ DEMO DATA';
+  document.getElementById('feedBadge').className = 'badge-state demo';
+  document.getElementById('feedBadge').textContent = '◎ DEMO';
+  document.getElementById('mainSub').textContent = 'Demo data · Run analysis to see live results';
+}
+
+function _setLiveBadge(total) {
+  document.getElementById('mainBadge').className = 'badge-state live';
+  document.getElementById('mainBadge').textContent = 'LIVE DATA';
+  document.getElementById('headerBadge').className = 'header-badge live';
+  document.getElementById('headerBadge').textContent = '● LIVE';
+  document.getElementById('feedBadge').className = 'badge-state live';
+  document.getElementById('feedBadge').textContent = 'LIVE';
+  document.getElementById('mainSub').textContent = `${total.toLocaleString()} posts/comments analyzed`;
+}
+
+// ════════════════════════════════════════════════
+// DEMO FEED
+// ════════════════════════════════════════════════
+function _renderDemoFeed(p) {
+  const feed = document.getElementById('feedBody');
+  feed.innerHTML = p.feed.map(item => {
+    const tileUrl = (item.channelUrl && !item.channelUrl.startsWith('PASTE_')) ? item.channelUrl : '#';
+    const thumbHtml = '';
+    return `
+    <div class="feed-item feed-item-clickable" onclick="if('${tileUrl}'!=='#')window.open('${tileUrl}','_blank')">
+      <div class="feed-item-top">
+        <div class="feed-item-platform">
+          <span style="color:${item.color}">${item.icon}</span> ${item.platform}
+          ${item.channel ? `<span class="feed-channel-sep">·</span><span class="feed-channel-badge">${item.channel}</span>` : ''}
+        </div>
+        <div class="feed-item-time">${item.time}</div>
+      </div>
+      ${item.title ? `<div class="feed-item-title">${item.title}</div>` : ''}
+      <div class="feed-item-text">${item.text}</div>
+      <div class="feed-item-tags">
+        ${item.tags.map((t, i) => `<span class="feed-tag ${t}">${item.tagLabels[i]}</span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function _renderKeywords(keywords) {
+  const maxCount = Math.max(...keywords.map(k => k.count));
+  document.getElementById('keywordList').innerHTML = keywords.map((k, i) => `
+    <div class="keyword-item">
+      <div class="keyword-rank">${i + 1}</div>
+      <div class="keyword-word">${k.word}</div>
+      <div class="keyword-bar-wrap">
+        <div class="keyword-bar ${k.type}" style="width:${Math.round(k.count / maxCount * 100)}%"></div>
+      </div>
+      <div class="keyword-count">${k.count}</div>
+    </div>
+  `).join('');
+}
+
+// ════════════════════════════════════════════════
+// PROGRESS ANIMATION
+// ════════════════════════════════════════════════
+let _stepTimer = null;
+
+function _startProgress() {
+  const steps = document.querySelectorAll('.progress-step');
+  steps.forEach(s => { s.className = 'progress-step'; s.querySelector('.step-icon').textContent = s.querySelector('.step-icon').textContent; });
+  let i = 0;
+  function next() {
+    if (i > 0) {
+      steps[i - 1].classList.remove('active');
+      steps[i - 1].classList.add('done');
+      steps[i - 1].querySelector('.step-icon').textContent = '✓';
+    }
+    if (i < steps.length) {
+      steps[i].classList.add('active');
+      i++;
+      _stepTimer = setTimeout(next, 11000 / steps.length);
+    }
+  }
+  next();
+}
+
+function _stopProgress() {
+  if (_stepTimer) { clearTimeout(_stepTimer); _stepTimer = null; }
+  document.querySelectorAll('.progress-step').forEach((s, idx) => {
+    s.className = 'progress-step done';
+    s.querySelector('.step-icon').textContent = '✓';
+  });
+}
+
+// ════════════════════════════════════════════════
+// ANALYSIS — calls backend
+// ════════════════════════════════════════════════
 async function runAnalysis() {
   const date = document.getElementById('datePicker').value;
   if (!date) { alert('Please select a date first.'); return; }
 
   const politician = POLITICIANS[currentIndex].name;
-  const btn    = document.getElementById('analyzeBtn');
+  const btn = document.getElementById('analyzeBtn');
   const status = document.getElementById('analysisStatus');
   const overlay = document.getElementById('loadingOverlay');
 
@@ -1518,6 +1846,7 @@ async function runAnalysis() {
   status.className = 'analysis-status';
   status.textContent = '';
   overlay.classList.add('show');
+  _startProgress();
 
   try {
     const resp = await fetch('/api/analyze', {
@@ -1528,38 +1857,95 @@ async function runAnalysis() {
 
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({}));
-      throw new Error(err.error || `Server error ${resp.status}`);
+      throw new Error(err.detail || err.error || `Server error ${resp.status}`);
     }
 
     const data = await resp.json();
-    const ytCount   = data.youtube.length;
-    const newsCount = data.news.length;
+    isLive = true;
 
-    // Update overall sentiment cards + ring with real data
-    _updateSentiment(data.overall.positive, data.overall.negative);
+    const yt = data.youtube   || [];
+    const nw = data.news      || [];
+    const tw = data.twitter   || [];
+    const fb = data.facebook  || [];
+    const ov = data.overall   || {};
 
-    // Update YouTube platform card positive/negative
-    const ytAvgPos = ytCount
-      ? Math.round(data.youtube.reduce((s, v) => s + v.sentiment.positive, 0) / ytCount)
-      : POLITICIANS[currentIndex].yt.pos;
-    const ytAvgNeg = 100 - ytAvgPos;
-    document.getElementById('ytBig').textContent    = ytAvgPos + '%';
-    document.getElementById('ytBigNeg').textContent = ytAvgNeg + '%';
-    document.getElementById('ytDualPos').style.width = ytAvgPos + '%';
-    document.getElementById('ytDualNeg').style.width = ytAvgNeg + '%';
-    document.getElementById('ytBar').style.width  = ytAvgPos + '%';
-    document.getElementById('ytPct').textContent  = ytAvgPos + '% / ' + ytAvgNeg + '%';
+    // Overall
+    const posVal = ov.positive ?? 0;
+    const negVal = ov.negative ?? 100 - posVal;
+    const total  = ov.total_analyzed ?? 0;
+    _countUp(document.getElementById('mainPos'), posVal);
+    _countUp(document.getElementById('mainNeg'), negVal);
+    document.getElementById('mainPosBar').style.width = posVal + '%';
+    document.getElementById('mainNegBar').style.width = negVal + '%';
+    document.getElementById('mainPosMeta').textContent = total.toLocaleString() + ' comments analyzed';
+    document.getElementById('mainNegMeta').textContent = 'Weighted: YT 35% · News 30% · TW 20% · FB 15%';
 
-    // Update total counts on YouTube card
-    const totalComments = data.youtube.reduce((s, v) => s + v.sentiment.total_comments, 0);
-    document.getElementById('ytVideosCount').textContent   = ytCount;
-    document.getElementById('ytCommentsCount').textContent = totalComments.toLocaleString();
+    // Hero gauge + verdict (live)
+    _renderHero(politician, posVal, total);
 
-    // Render real feed
-    _renderRealFeed(data.youtube, data.news);
+    // Ring
+    const circ = 2 * Math.PI * 38;
+    document.getElementById('ringPos').style.strokeDashoffset = circ * (1 - posVal / 100);
+    _countUp(document.getElementById('ringPct'), posVal);
 
-    // Status badge
-    status.textContent = `✓ ${ytCount} videos · ${newsCount} articles · ${data.overall.total_analyzed} comments analyzed`;
+    // YouTube card
+    const ytPos = ov.youtube_positive  ?? (yt.length ? Math.round(yt.reduce((s, v) => s + v.sentiment.positive, 0) / yt.length) : 0);
+    const ytNeg = 100 - ytPos;
+    const ytTotalComments = yt.reduce((s, v) => s + (v.sentiment.total_comments || 0), 0);
+    _setPlatformCard('yt', ytPos, ytNeg);
+    _makeBarChart('ytChart', ytPos, ytNeg);
+    document.getElementById('ytVideosCount').textContent   = yt.length;
+    document.getElementById('ytCommentsCount').textContent = ytTotalComments.toLocaleString();
+    _setPlatformStatus('yt', ytPos);
+
+    // News card
+    const nwPos = ov.news_positive ?? (nw.length ? Math.round(nw.filter(a => a.sentiment === 'positive').length / nw.length * 100) : 0);
+    const nwNeg = 100 - nwPos;
+    const uniqueSources = new Set(nw.map(a => a.source).filter(Boolean)).size;
+    _setPlatformCard('news', nwPos, nwNeg);
+    _makeBarChart('newsChart', nwPos, nwNeg);
+    document.getElementById('newsArticles').textContent = nw.length;
+    document.getElementById('newsSources').textContent  = uniqueSources || '—';
+    _setPlatformStatus('news', nwPos);
+
+    // Twitter card
+    const twPos = ov.twitter_positive ?? (tw.length ? Math.round(tw.filter(t => t.sentiment === 'positive').length / tw.length * 100) : 0);
+    const twNeg = 100 - twPos;
+    const twEngage = tw.reduce((s, t) => s + (t.likes || 0) + (t.retweets || 0), 0);
+    _setPlatformCard('tw', twPos, twNeg);
+    _makeBarChart('twChart', twPos, twNeg);
+    document.getElementById('twTweets').textContent    = tw.length || '—';
+    document.getElementById('twEngagement').textContent = tw.length ? twEngage.toLocaleString() : '—';
+    _setPlatformStatus('tw', twPos, tw.length === 0);
+
+    // Facebook card
+    const fbPos = ov.facebook_positive ?? (fb.length ? Math.round(fb.reduce((s, p) => s + (p.sentiment?.positive || 0), 0) / fb.length) : 0);
+    const fbNeg = 100 - fbPos;
+    const fbCommentTotal = fb.reduce((s, p) => s + (p.comment_count || 0), 0);
+    _setPlatformCard('fb', fbPos, fbNeg);
+    _makeBarChart('fbChart', fbPos, fbNeg);
+    document.getElementById('fbPosts').textContent    = fb.length || '—';
+    document.getElementById('fbComments').textContent = fb.length ? fbCommentTotal.toLocaleString() : '—';
+    _setPlatformStatus('fb', fbPos, fb.length === 0);
+
+    // Sidebar bars
+    _setSidebarBars(
+      fbPos, fbNeg, ytPos, ytNeg, twPos, twNeg, nwPos, nwNeg
+    );
+
+    // Live feed
+    _renderLiveFeed(yt, nw, tw, fb);
+
+    // Badges
+    _setLiveBadge(total);
+
+    // Status bar
+    const parts = [];
+    if (yt.length) parts.push(`${yt.length} videos`);
+    if (nw.length) parts.push(`${nw.length} articles`);
+    if (tw.length) parts.push(`${tw.length} tweets`);
+    if (fb.length) parts.push(`${fb.length} posts`);
+    status.textContent = `✓ ${parts.join(' · ')} · ${total.toLocaleString()} analyzed`;
     status.className = 'analysis-status ok';
 
   } catch (err) {
@@ -1568,112 +1954,137 @@ async function runAnalysis() {
     console.error('[Analysis]', err);
   } finally {
     btn.disabled = false;
+    _stopProgress();
     overlay.classList.remove('show');
   }
 }
 
-function _updateSentiment(pos, neg) {
-  // Overall cards
-  document.getElementById('mainPos').textContent    = pos + '%';
-  document.getElementById('mainNeg').textContent    = neg + '%';
-  document.getElementById('mainPosBar').style.width = pos + '%';
-  document.getElementById('mainNegBar').style.width = neg + '%';
-  // Sidebar ring
-  const circumference = 2 * Math.PI * 38;
-  document.getElementById('ringPos').style.strokeDashoffset = circumference * (1 - pos / 100);
-  document.getElementById('ringPct').textContent = pos + '%';
-  // Sidebar bar for YT
-  document.getElementById('ytBar').style.width = pos + '%';
+function _setPlatformStatus(pfx, pos, noData) {
+  const el = document.getElementById(pfx + 'Status');
+  if (noData) {
+    el.textContent = 'No data';
+    el.className = 'platform-card-status status-demo';
+    return;
+  }
+  if (pos >= 55) {
+    el.textContent = 'Positive';
+    el.className = 'platform-card-status status-positive';
+  } else {
+    el.textContent = 'Mixed';
+    el.className = 'platform-card-status status-mixed';
+  }
 }
 
-function _sentimentClass(pos, neg) {
-  if (pos >= 55) return 'pos';
-  if (neg >= 55) return 'neg';
-  return 'neu';
-}
-function _sentimentLabel(cls) {
-  return cls === 'pos' ? 'Positive' : cls === 'neg' ? 'Negative' : 'Neutral';
-}
-function _cap(s) { return s ? s[0].toUpperCase() + s.slice(1) : ''; }
+// ════════════════════════════════════════════════
+// LIVE FEED RENDERER
+// ════════════════════════════════════════════════
+function _sc(s) { return s ? s[0].toUpperCase() + s.slice(1) : ''; }
+function _sentCls(pos, neg) { return pos >= 55 ? 'pos' : neg >= 55 ? 'neg' : 'neu'; }
+function _sentLabel(cls) { return cls === 'pos' ? 'Positive' : cls === 'neg' ? 'Negative' : 'Neutral'; }
 
-function _renderRealFeed(ytVideos, newsArticles) {
+function _renderLiveFeed(ytVideos, newsArticles, tweets, fbPosts) {
   const feed = document.getElementById('feedBody');
+  const items = [];
 
-  const ytItems = ytVideos.slice(0, 5).map(v => {
-    const cls = _sentimentClass(v.sentiment.positive, v.sentiment.negative);
-    return `
+  ytVideos.slice(0, 4).forEach(v => {
+    const cls = _sentCls(v.sentiment.positive, v.sentiment.negative);
+    const thumb = v.thumbnail ? `<img class="feed-item-thumb" src="${v.thumbnail}" alt="" loading="lazy">` : '';
+    items.push(`
       <div class="feed-item feed-item-clickable" onclick="window.open('${v.url}','_blank')">
         <div class="feed-item-top">
           <div class="feed-item-platform">
             <span style="color:var(--yt)">▶</span> YouTube
             <span class="feed-channel-sep">·</span>
-            <a class="feed-channel-badge" href="${v.channel_url}" target="_blank" rel="noopener"
-               onclick="event.stopPropagation()">${v.channel}</a>
+            <a class="feed-channel-badge" href="${v.channel_url || '#'}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${v.channel}</a>
           </div>
-          <div class="feed-item-time">${v.publish_date}</div>
+          <div class="feed-item-time">${v.publish_date || ''}</div>
         </div>
-        <a class="feed-item-link" href="${v.url}" target="_blank" rel="noopener">
-          <div class="feed-item-title">${v.title}</div>
-          <div class="feed-item-text">${v.transcript_summary || 'No transcript available for this video.'}</div>
-        </a>
+        ${thumb}
+        <div class="feed-item-title">${v.title}</div>
+        <div class="feed-item-text">${v.transcript_summary || 'No transcript available.'}</div>
         <div class="feed-item-tags">
-          <span class="feed-tag ${cls}">${_sentimentLabel(cls)}</span>
+          <span class="feed-tag ${cls}">${_sentLabel(cls)}</span>
           <span class="feed-tag neu">${v.sentiment.total_comments} comments</span>
         </div>
-      </div>`;
+      </div>`);
   });
 
-  const newsItems = newsArticles.slice(0, 4).map(n => {
+  newsArticles.slice(0, 3).forEach(n => {
     const cls = n.sentiment === 'positive' ? 'pos' : n.sentiment === 'negative' ? 'neg' : 'neu';
-    return `
+    items.push(`
       <div class="feed-item feed-item-clickable" onclick="window.open('${n.url}','_blank')">
         <div class="feed-item-top">
           <div class="feed-item-platform">
-            <span style="color:var(--text-2)">📰</span> News
+            <span style="color:var(--news)">📰</span> News
             <span class="feed-channel-sep">·</span>
-            <span class="feed-channel-badge">${n.source}</span>
+            <span class="feed-channel-badge">${n.source || ''}</span>
           </div>
-          <div class="feed-item-time">${n.published_date}</div>
+          <div class="feed-item-time">${n.published_date || ''}</div>
         </div>
-        <a class="feed-item-link" href="${n.url}" target="_blank" rel="noopener">
-          <div class="feed-item-title">${n.title}</div>
-          <div class="feed-item-text">${n.summary || ''}</div>
-        </a>
-        <div class="feed-item-tags">
-          <span class="feed-tag ${cls}">${_sentimentLabel(cls)}</span>
-        </div>
-      </div>`;
+        <div class="feed-item-title">${n.title}</div>
+        <div class="feed-item-text">${n.summary || ''}</div>
+        <div class="feed-item-tags"><span class="feed-tag ${cls}">${_sentLabel(cls)}</span></div>
+      </div>`);
   });
 
-  const allItems = [...ytItems, ...newsItems];
-  if (!allItems.length) {
-    feed.innerHTML = `<div class="feed-no-results">
-      No results found for this date.<br>
-      Try a different date or a different politician.
-    </div>`;
+  tweets.slice(0, 2).forEach(t => {
+    const cls = t.sentiment === 'positive' ? 'pos' : t.sentiment === 'negative' ? 'neg' : 'neu';
+    items.push(`
+      <div class="feed-item feed-item-clickable" onclick="window.open('${t.url || '#'}','_blank')">
+        <div class="feed-item-top">
+          <div class="feed-item-platform">
+            <span style="color:var(--tw)">𝕏</span> Twitter/X
+            <span class="feed-channel-sep">·</span>
+            <span class="feed-channel-badge">@${t.author_handle || 'user'}</span>
+          </div>
+          <div class="feed-item-time">${t.created_at ? t.created_at.split('T')[0] : ''}</div>
+        </div>
+        <div class="feed-item-text">${t.text}</div>
+        <div class="feed-item-tags">
+          <span class="feed-tag ${cls}">${_sentLabel(cls)}</span>
+          ${t.likes ? `<span class="feed-tag neu">❤️ ${t.likes}</span>` : ''}
+        </div>
+      </div>`);
+  });
+
+  fbPosts.slice(0, 2).forEach(p => {
+    const cls = p.sentiment ? _sentCls(p.sentiment.positive, 100 - p.sentiment.positive) : 'neu';
+    items.push(`
+      <div class="feed-item feed-item-clickable" onclick="window.open('${p.url || '#'}','_blank')">
+        <div class="feed-item-top">
+          <div class="feed-item-platform">
+            <span style="color:var(--fb)">f</span> Facebook
+          </div>
+          <div class="feed-item-time">${p.post_date ? p.post_date.split('T')[0] : ''}</div>
+        </div>
+        <div class="feed-item-text">${p.text || ''}</div>
+        <div class="feed-item-tags">
+          <span class="feed-tag ${cls}">${_sentLabel(cls)}</span>
+          ${p.likes ? `<span class="feed-tag neu">👍 ${p.likes}</span>` : ''}
+        </div>
+      </div>`);
+  });
+
+  if (!items.length) {
+    feed.innerHTML = `<div class="feed-no-results">No results found for this date.<br>Try a different date or politician.</div>`;
     return;
   }
-  feed.innerHTML = allItems.join('');
+  feed.innerHTML = items.join('');
 }
 
 // ════════════════════════════════════════════════
 // SEARCH
 // ════════════════════════════════════════════════
 function onSearch(val) {
-  const box = document.getElementById('searchSuggestions');
-  if (val.length > 0) {
-    box.classList.add('show');
-  } else {
-    box.classList.remove('show');
-  }
+  document.getElementById('searchSuggestions').classList.toggle('show', val.length > 0);
 }
 function showSuggestions() {
-  if (document.getElementById('searchInput').value.length === 0)
+  if (!document.getElementById('searchInput').value.length)
     document.getElementById('searchSuggestions').classList.add('show');
 }
-let hideTimer;
+let _hideTimer;
 function hideSuggestions() {
-  hideTimer = setTimeout(() => document.getElementById('searchSuggestions').classList.remove('show'), 200);
+  _hideTimer = setTimeout(() => document.getElementById('searchSuggestions').classList.remove('show'), 200);
 }
 </script>
 </body>

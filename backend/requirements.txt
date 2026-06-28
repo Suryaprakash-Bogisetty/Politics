@@ -1,9 +1,31 @@
-flask==3.0.3
+# Web framework
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.0.0
+
+# Environment
 python-dotenv==1.0.1
+
+# YouTube
 google-api-python-client==2.147.0
 youtube-transcript-api==0.6.2
-groq>=1.4.0
+
+# News
 feedparser==6.0.11
 requests==2.32.3
+googlenewsdecoder>=0.1.6
+trafilatura>=1.9.0
 beautifulsoup4==4.12.3
 lxml==5.3.0
+
+# Twitter / X
+tweepy>=4.14.0
+
+# AI / LLM
+groq>=1.4.0
+
+# Local NLP — multilingual Telugu/English sentiment (XLM-RoBERTa, 100 languages)
+transformers>=4.40.0
+torch>=2.2.0
+sentencepiece>=0.1.99
+protobuf>=4.25.0

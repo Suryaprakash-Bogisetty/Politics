@@ -1,0 +1,10 @@
+**/__pycache__
+**/*.pyc
+**/.env
+**/.git
+**/venv
+**/node_modules
+youtube_scraper/venv
+news_scraper/output
+youtube_scraper_v2/output.csv
+fb_scraper/output
